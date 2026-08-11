@@ -1,12 +1,10 @@
-import { builds } from "@/content/builds";
-import { tutorials } from "@/content/tutorials";
-import { formations } from "@/content/formations";
-import { discoveries } from "@/content/discoveries";
-import { coaches } from "@/content/coaches";
-import { featuredContent } from "@/content/featured";
+import {
+  contentCollections,
+  featuredItems,
+  isContentPublished,
+} from "@/lib/content-data";
 import type {
   Coach,
-  ContentType,
   Discovery,
   FeaturedItem,
   FeaturedPlacement,
@@ -15,12 +13,7 @@ import type {
   Tutorial,
 } from "@/content/types";
 
-export type ContentEntity =
-  | PlayerBuild
-  | Tutorial
-  | FormationGuide
-  | Discovery
-  | Coach;
+export type { ContentEntity } from "@/lib/content-data";
 
 export type FeaturedEntry =
   | (FeaturedItem & { type: "build"; content: PlayerBuild })
@@ -29,22 +22,16 @@ export type FeaturedEntry =
   | (FeaturedItem & { type: "discovery"; content: Discovery })
   | (FeaturedItem & { type: "coach"; content: Coach });
 
-const collections: Record<ContentType, ContentEntity[]> = {
-  build: builds,
-  tutorial: tutorials,
-  "formation-guide": formations,
-  discovery: discoveries,
-  coach: coaches,
-};
+const collections = contentCollections;
 
-function isPublished(content: ContentEntity): boolean {
-  return "publishedStatus" in content
-    ? content.publishedStatus === "published"
-    : content.status === "active";
-}
+const builds = collections.build;
+const tutorials = collections.tutorial;
+const formations = collections["formation-guide"];
+const discoveries = collections.discovery;
+const coaches = collections.coach;
 
 function resolveFeatured(placement?: FeaturedPlacement): FeaturedEntry[] {
-  return featuredContent
+  return featuredItems
     .filter(
       (item) =>
         item.active && (placement === undefined || item.placement === placement)
@@ -53,7 +40,7 @@ function resolveFeatured(placement?: FeaturedPlacement): FeaturedEntry[] {
       const content = collections[item.type].find(
         (candidate) => candidate.id === item.contentId
       );
-      if (!content || !isPublished(content)) return [];
+      if (!content || !isContentPublished(content)) return [];
       return [{ ...item, content }] as FeaturedEntry[];
     })
     .sort((a, b) => a.order - b.order);

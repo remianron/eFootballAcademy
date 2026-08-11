@@ -1,6 +1,9 @@
 import type {
+  ContentType,
   Difficulty,
   DiscoveryCategory,
+  FeaturedPlacement,
+  PublishStatus,
   ResearchStatus,
   TutorialCategory,
 } from "@/content/types";
@@ -13,6 +16,35 @@ export const TUTORIAL_CATEGORY_LABELS: Record<TutorialCategory, string> = {
   shooting: "Shooting",
   corners: "Corners",
   mechanics: "Mechanics",
+};
+
+export const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
+  build: "Player Build",
+  tutorial: "Tutorial",
+  "formation-guide": "Formation Guide",
+  discovery: "Discovery",
+  coach: "Coach",
+};
+
+export const CONTENT_TYPE_PLURAL_LABELS: Record<ContentType, string> = {
+  build: "Player Builds",
+  tutorial: "Tutorials",
+  "formation-guide": "Formation Guides",
+  discovery: "Discoveries",
+  coach: "Coaches",
+};
+
+export const FEATURED_PLACEMENT_LABELS: Record<FeaturedPlacement, string> = {
+  hero: "Hero",
+  featured: "Featured",
+  sidebar: "Sidebar",
+  latest: "Latest",
+};
+
+export const PUBLISH_STATUS_LABELS: Record<PublishStatus, string> = {
+  published: "Published",
+  draft: "Draft",
+  archived: "Archived",
 };
 
 export const TUTORIAL_CATEGORY_ORDER: TutorialCategory[] = [

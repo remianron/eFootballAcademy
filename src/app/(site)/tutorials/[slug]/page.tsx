@@ -72,10 +72,10 @@ export default async function TutorialPage({
 
       <Section>
         <Container>
-          <div className="grid gap-8 lg:grid-cols-[1fr_2fr] lg:gap-12">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(280px,1fr)] lg:gap-12">
             <MediaPlaceholder
               label={`${tutorial.category} tutorial media`}
-              className="aspect-[16/10] w-full lg:sticky lg:top-24"
+              className="aspect-[16/10] w-full min-w-0 lg:sticky lg:top-24"
             />
 
             <div className="min-w-0">

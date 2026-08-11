@@ -41,7 +41,16 @@ export default async function TutorialsPage() {
             </h2>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {group.items.map((tutorial) => (
-                <TutorialCard key={tutorial.id} tutorial={tutorial} />
+                <div
+                  key={tutorial.id}
+                  className={
+                    group.items.length === 1
+                      ? "sm:col-span-2 lg:col-span-3"
+                      : undefined
+                  }
+                >
+                  <TutorialCard tutorial={tutorial} />
+                </div>
               ))}
             </div>
           </Container>
