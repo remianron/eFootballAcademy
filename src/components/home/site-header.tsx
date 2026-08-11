@@ -4,12 +4,11 @@ import { MobileNav } from "@/components/home/mobile-nav";
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Players", href: "#players" },
-  { label: "Stats", href: "#platform" },
-  { label: "Coaching", href: "#coaching" },
-  { label: "Experiments", href: "#experiments" },
-  { label: "Builds", href: "#builds" },
-  { label: "Discoveries", href: "#discoveries" },
+  { label: "Builds", href: "/builds" },
+  { label: "Tutorials", href: "/tutorials" },
+  { label: "Formations", href: "/formations" },
+  { label: "Coaching", href: "/coaching" },
+  { label: "Discoveries", href: "/discoveries" },
 ] as const;
 
 export function SiteHeader() {
@@ -33,8 +32,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden shrink-0 sm:flex">
-          <Button href="#platform" variant="primary" size="sm">
-            Explore Academy
+          <Button href="/builds" variant="primary" size="sm">
+            Explore Builds
           </Button>
         </div>
 

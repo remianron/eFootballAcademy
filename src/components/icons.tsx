@@ -89,6 +89,16 @@ export function IconArrowRight(props: IconProps) {
   );
 }
 
+export function IconExternalLink(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </Icon>
+  );
+}
+
 export function IconChevronRight(props: IconProps) {
   return (
     <Icon {...props}>
@@ -210,6 +220,34 @@ export function IconFormation(props: IconProps) {
       <circle cx="5" cy="19.5" r="1.6" />
       <circle cx="12" cy="20" r="1.6" />
       <circle cx="19" cy="19.5" r="1.6" />
+    </Icon>
+  );
+}
+
+export function IconLightbulb(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 18h6" />
+      <path d="M10 21h4" />
+      <path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3Z" />
+    </Icon>
+  );
+}
+
+export function IconPlay(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 4.5v15l13-7.5-13-7.5Z" />
+    </Icon>
+  );
+}
+
+export function IconImage(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="8.5" cy="9.5" r="1.5" />
+      <path d="m21 16-4.5-4.5L9 19" />
     </Icon>
   );
 }

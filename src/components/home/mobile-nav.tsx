@@ -63,13 +63,13 @@ export function MobileNav({ links }: MobileNavProps) {
               </ul>
               <div className="mt-4">
                 <Button
-                  href="#platform"
+                  href="/builds"
                   variant="primary"
                   size="md"
                   className="w-full"
                   onClick={() => setOpen(false)}
                 >
-                  Explore Academy
+                  Explore Builds
                 </Button>
               </div>
             </nav>

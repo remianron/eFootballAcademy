@@ -1,18 +1,17 @@
 import { BrandLogo, Container, Divider } from "@/components";
 
 const platformLinks = [
-  { label: "Players", href: "#players" },
-  { label: "Stats", href: "#platform" },
-  { label: "Coaching", href: "#coaching" },
-  { label: "Experiments", href: "#experiments" },
-  { label: "Builds", href: "#builds" },
-  { label: "Discoveries", href: "#discoveries" },
+  { label: "Builds", href: "/builds" },
+  { label: "Tutorials", href: "/tutorials" },
+  { label: "Formations", href: "/formations" },
+  { label: "Coaching", href: "/coaching" },
+  { label: "Discoveries", href: "/discoveries" },
 ] as const;
 
 const aboutLinks = [
   { label: "About Academy", href: "#" },
-  { label: "Expert Coaches", href: "#coaches" },
-  { label: "Research", href: "#experiments" },
+  { label: "Expert Coaches", href: "/coaching" },
+  { label: "Research", href: "/discoveries" },
 ] as const;
 
 const socialLinks = [
@@ -32,8 +31,8 @@ export function SiteFooter() {
               Learn. Train. Master.
             </p>
             <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted">
-              eFootball Academy is a global coaching and intelligence platform
-              for players, coaches and researchers.
+              eFootball Academy is a curated coaching and intelligence platform
+              — published builds, tutorials, formations and research.
             </p>
           </div>
           <FooterColumn title="Platform" links={platformLinks} />

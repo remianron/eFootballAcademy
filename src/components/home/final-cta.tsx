@@ -24,11 +24,11 @@ export function FinalCta() {
               Explore players, train smarter and discover what actually works.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button href="#platform" variant="primary" size="lg">
-                Explore the Academy
+              <Button href="/builds" variant="primary" size="lg">
+                Explore the Builds
               </Button>
-              <Button href="#players" variant="outline" size="lg">
-                View Player Database
+              <Button href="/coaching" variant="outline" size="lg">
+                Explore Coaching
               </Button>
             </div>
           </div>

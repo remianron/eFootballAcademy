@@ -1,0 +1,300 @@
+import type { PlayerBuild } from "@/content/types";
+
+export const builds: PlayerBuild[] = [
+  {
+    id: "build-k-ambrose-sole-control",
+    slug: "k-ambrose-sole-control",
+    title: "K. Ambrose — Sole Control Build",
+    playerName: "K. Ambrose",
+    cardName: "eFootball Points — Epic",
+    position: "CF",
+    overall: 94,
+    buildName: "Sole Control Build",
+    shortDescription:
+      "A build designed for receiving between the lines and turning under pressure — close control first, overall rating second.",
+    philosophy:
+      "This build prioritizes close control and first-touch responsiveness rather than maximizing overall rating. The goal is to make Ambrose more effective when receiving between the lines and turning under pressure — the situations where most attacks are won or lost. Every point allocated here supports the idea that a controlled first touch creates the space that finishing then exploits.",
+    keyAttributes: {
+      Finishing: 98,
+      "Offensive Awareness": 97,
+      "Ball Control": 96,
+      Dribbling: 94,
+      Speed: 90,
+      Acceleration: 91,
+    },
+    strengths: [
+      "Close control under pressure",
+      "Receiving and turning",
+      "First-time finishing",
+    ],
+    weaknesses: [
+      "Limited aerial presence",
+      "Physical duels",
+      "Less effective against deep defensive blocks",
+    ],
+    recommendedFor: [
+      "Possession Game",
+      "Tight-space attacking",
+      "AMF / SS",
+      "Players who rely on close control",
+    ],
+    avoidFor: ["Aerial-focused play", "Physical target-man systems"],
+    skills: [
+      "First-time Shot",
+      "Rising Shot",
+      "Heel Trick",
+      "Sole Control",
+      "Double Touch",
+      "Through Passing",
+    ],
+    media: [
+      {
+        type: "video",
+        url: "#",
+        caption: "Close-control sequence demonstrating the Sole Control build.",
+      },
+      {
+        type: "image",
+        url: "#",
+        caption: "Training allocation screenshot for this build.",
+      },
+    ],
+    communityFeedback: [
+      {
+        platform: "YouTube",
+        author: "@ExampleCreator",
+        comment:
+          "Tested this build for a few matches and the close control feels noticeably better.",
+        date: "2026-07-24",
+      },
+      {
+        platform: "Instagram",
+        author: "@ExamplePlayer",
+        comment: "Really good setup for possession play.",
+      },
+      {
+        platform: "TikTok",
+        author: "@ExampleCreator",
+        comment: "Much smoother in tight spaces.",
+      },
+    ],
+    publishedStatus: "published",
+    createdAt: "2026-07-05T10:00:00.000Z",
+    updatedAt: "2026-07-20T10:00:00.000Z",
+  },
+  {
+    id: "build-k-ambrose-target-man",
+    slug: "k-ambrose-target-man",
+    title: "K. Ambrose — Target Man Build",
+    playerName: "K. Ambrose",
+    cardName: "eFootball Points — Epic",
+    position: "CF",
+    overall: 94,
+    buildName: "Target Man Build",
+    shortDescription:
+      "A physical focal point for crosses, hold-up play and second balls — built to play with his back to goal.",
+    philosophy:
+      "The Target Man Build trades close control for physical presence. Ambrose becomes a stationary reference point: he holds off defenders, wins aerial duels and flicks the ball into runners. Where the Sole Control build creates space for himself, this build creates space for everyone else.",
+    keyAttributes: {
+      "Physical Contact": 94,
+      Heading: 96,
+      "Offensive Awareness": 95,
+      Finishing: 95,
+      "Kicking Power": 92,
+      "Ball Control": 88,
+    },
+    strengths: [
+      "Aerial dominance in the box",
+      "Hold-up play and shielding",
+      "Flick-ons for runners",
+      "Physical duels",
+    ],
+    weaknesses: [
+      "Slower off the mark",
+      "Less effective in tight spaces",
+      "Dependent on service",
+    ],
+    recommendedFor: [
+      "Cross-heavy attacking",
+      "Direct play / long ball counter",
+      "CF in a front two",
+      "Second-ball systems",
+    ],
+    avoidFor: ["Slow build-up possession", "Solo dribbling systems"],
+    skills: [
+      "First-time Shot",
+      "Rising Shot",
+      "One-Touch Pass",
+      "Through Passing",
+    ],
+    media: [
+      {
+        type: "video",
+        url: "#",
+        caption: "Hold-up play and flick-on sequence with the Target Man build.",
+      },
+      {
+        type: "gif",
+        url: "#",
+        caption: "Aerial duel example under pressure.",
+      },
+    ],
+    communityFeedback: [],
+    publishedStatus: "published",
+    createdAt: "2026-07-14T10:00:00.000Z",
+    updatedAt: "2026-07-14T10:00:00.000Z",
+  },
+  {
+    id: "build-m-vela-positional-keeper",
+    slug: "m-vela-positional-keeper",
+    title: "M. Vela — Positional Keeper Build",
+    playerName: "M. Vela",
+    cardName: "Legend — Epic",
+    position: "GK",
+    overall: 93,
+    buildName: "Positional Keeper Build",
+    shortDescription:
+      "A keeper who is always in the right place — awareness-first, so he reads the danger before it becomes a shot.",
+    philosophy:
+      "Most saves are won before the shot. This build invests in awareness so Vela starts every situation one step earlier — claiming crosses, narrowing angles and covering through balls. Reflexes stay elite, but the identity of this build is anticipation rather than reaction.",
+    keyAttributes: {
+      Awareness: 101,
+      Reflexes: 99,
+      "GK Catching": 97,
+      "GK Parrying": 95,
+      Reach: 96,
+      Jumping: 88,
+    },
+    strengths: [
+      "Positioning on through balls and cutbacks",
+      "Cross claiming and punch decisions",
+      "Penalty prediction through body shape",
+    ],
+    weaknesses: [
+      "Close-range reflex saves are a fraction slower than the Reaction build",
+      "Clearing under pressure is serviceable but not exceptional",
+    ],
+    recommendedFor: [
+      "High defensive lines",
+      "Cross-heavy opponents",
+      "Sweeper keeper systems",
+    ],
+    avoidFor: ["Teams that concede many close-range chances"],
+    skills: ["Penalty Saver", "Low Punt", "Long Throw", "High Punt"],
+    media: [
+      {
+        type: "image",
+        url: "#",
+        caption: "Training allocation screenshot for this build.",
+      },
+    ],
+    communityFeedback: [],
+    publishedStatus: "published",
+    createdAt: "2026-06-10T09:00:00.000Z",
+    updatedAt: "2026-07-15T12:00:00.000Z",
+  },
+  {
+    id: "build-m-vela-reaction-keeper",
+    slug: "m-vela-reaction-keeper",
+    title: "M. Vela — Reaction Keeper Build",
+    playerName: "M. Vela",
+    cardName: "Legend — Epic",
+    position: "GK",
+    overall: 93,
+    buildName: "Reaction Keeper Build",
+    shortDescription:
+      "A keeper built around the reaction save — reflexes first, so close-range shots rarely beat him.",
+    philosophy:
+      "This build bets on the reaction save. Reflexes first means Vela gets a hand on close-range shots that would beat other keepers. The trade-off is positioning — he arrives at danger zones a step later, so the defensive line must protect him from through balls.",
+    keyAttributes: {
+      Reflexes: 101,
+      Awareness: 99,
+      "GK Parrying": 96,
+      "GK Catching": 97,
+      Reach: 96,
+      Jumping: 88,
+    },
+    strengths: [
+      "Close-range reaction saves and 1v1 denial",
+      "Parrying away low driven shots",
+      "Late adjustment to deflections",
+    ],
+    weaknesses: [
+      "One step slower on through-ball read",
+      "Cross claiming is less assertive than the Positional build",
+    ],
+    recommendedFor: [
+      "Low blocks that face many shots",
+      "Long ball counter",
+      "Late-game defending",
+    ],
+    avoidFor: ["High lines that concede through balls"],
+    skills: ["Penalty Saver", "Low Punt", "Long Throw", "High Punt"],
+    media: [
+      {
+        type: "image",
+        url: "#",
+        caption: "Training allocation screenshot for this build.",
+      },
+    ],
+    communityFeedback: [],
+    publishedStatus: "published",
+    createdAt: "2026-06-12T09:00:00.000Z",
+    updatedAt: "2026-07-15T12:00:00.000Z",
+  },
+  {
+    id: "build-a-meridian-tempo-creator",
+    slug: "a-meridian-tempo-creator",
+    title: "A. Meridian — Tempo Creator Build",
+    playerName: "A. Meridian",
+    cardName: "Highlight — Epic",
+    position: "AMF",
+    overall: 92,
+    buildName: "Tempo Creator Build",
+    shortDescription:
+      "A tempo-setting playmaker who receives on the half-turn and releases runners early.",
+    philosophy:
+      "The Tempo Creator build exists to control the rhythm between the lines. Balance and ball control let Meridian receive facing forward, and his passing splits release runners early. The build keeps enough finishing to be a genuine threat when he arrives late in the box.",
+    keyAttributes: {
+      Dribbling: 95,
+      "Ball Control": 93,
+      "Offensive Awareness": 92,
+      "Low Pass": 90,
+      "Lofted Pass": 89,
+      Finishing: 88,
+    },
+    strengths: [
+      "Receiving on the half-turn",
+      "Early release of through balls",
+      "Balance under pressure from holding midfielders",
+    ],
+    weaknesses: [
+      "Stamina limits box-to-box coverage late in matches",
+      "Not built to win aerial duels",
+    ],
+    recommendedFor: [
+      "Possession Game",
+      "Quick Counter with early release",
+      "4-2-1-3 systems",
+    ],
+    avoidFor: ["Physical direct play without midfield support"],
+    skills: [
+      "Double Touch",
+      "Flip Flap",
+      "Through Passing",
+      "One-Touch Pass",
+      "Long Range Curler",
+    ],
+    media: [
+      {
+        type: "video",
+        url: "#",
+        caption: "Half-turn receiving sequence with the Tempo Creator build.",
+      },
+    ],
+    communityFeedback: [],
+    publishedStatus: "published",
+    createdAt: "2026-07-20T10:30:00.000Z",
+    updatedAt: "2026-07-21T08:00:00.000Z",
+  },
+];

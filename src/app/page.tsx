@@ -1,12 +1,10 @@
 import { SiteHeader } from "@/components/home/site-header";
 import { Hero } from "@/components/home/hero";
 import { Pillars } from "@/components/home/pillars";
-import { PlayerIntelligence } from "@/components/home/player-intelligence";
-import { Coaching } from "@/components/home/coaching";
-import { Science } from "@/components/home/science";
-import { Builds } from "@/components/home/builds";
-import { Discoveries } from "@/components/home/discoveries";
-import { Coaches } from "@/components/home/coaches";
+import { BuildSpotlight } from "@/components/home/build-spotlight";
+import { LearningSection } from "@/components/home/learning-section";
+import { DiscoveriesSection } from "@/components/home/discoveries-section";
+import { CoachesSection } from "@/components/home/coaches-section";
 import { FinalCta } from "@/components/home/final-cta";
 import { SiteFooter } from "@/components/home/site-footer";
 
@@ -25,12 +23,10 @@ export default function Home() {
       <main id="main-content" className="flex-1">
         <Hero />
         <Pillars />
-        <PlayerIntelligence />
-        <Coaching />
-        <Science />
-        <Builds />
-        <Discoveries />
-        <Coaches />
+        <BuildSpotlight />
+        <LearningSection />
+        <DiscoveriesSection />
+        <CoachesSection />
         <FinalCta />
       </main>
 
