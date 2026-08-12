@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/cn";
 import { Button, Container, IconButton } from "@/components";
 import { IconChevronRight, IconClose, IconMenu } from "@/components/icons";
 
 export type NavLink = { label: string; href: string };
+
+export function isSectionActive(href: string, pathname: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 type MobileNavProps = {
   links: readonly NavLink[];
@@ -13,18 +20,37 @@ type MobileNavProps = {
 
 export function MobileNav({ links }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!open) return;
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
+
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target as Node;
+      if (!rootRef.current?.contains(target)) {
+        event.preventDefault();
+        setOpen(false);
+      }
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
   }, [open]);
 
   return (
-    <div className="lg:hidden">
+    <div ref={rootRef} className="lg:hidden">
       <IconButton
         label={open ? "Close menu" : "Open menu"}
         variant="outline"
@@ -43,23 +69,37 @@ export function MobileNav({ links }: MobileNavProps) {
       {open && (
         <div
           id="mobile-navigation"
-          className="fixed inset-x-0 top-16 z-50 border-b border-border bg-background/95 shadow-card backdrop-blur-md"
+          className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-4rem)] overflow-y-auto bg-background"
         >
           <Container className="py-4">
             <nav aria-label="Mobile">
               <ul className="flex flex-col divide-y divide-border">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      className="flex items-center justify-between py-3 text-sm font-medium text-secondary transition-colors hover:text-electric"
-                    >
-                      {link.label}
-                      <IconChevronRight className="h-4 w-4 text-muted" />
-                    </Link>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const active = isSectionActive(link.href, pathname);
+                  return (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "flex items-center justify-between py-3 text-sm font-medium transition-colors",
+                          active
+                            ? "text-electric"
+                            : "text-secondary hover:text-electric"
+                        )}
+                      >
+                        {link.label}
+                        <IconChevronRight
+                          className={cn(
+                            "h-4 w-4",
+                            active ? "text-electric" : "text-muted"
+                          )}
+                        />
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
               <div className="mt-4">
                 <Button

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { BrandLogo, Button, Container } from "@/components";
-import { MobileNav } from "@/components/home/mobile-nav";
+import { isSectionActive, MobileNav } from "@/components/home/mobile-nav";
 
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -15,16 +15,11 @@ export const NAV_LINKS = [
   { label: "Discoveries", href: "/discoveries" },
 ] as const;
 
-function isSectionActive(href: string, pathname: string): boolean {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
 export function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="relative sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Link href="/" aria-label="eFootball Academy home" className="shrink-0">
           <BrandLogo />
