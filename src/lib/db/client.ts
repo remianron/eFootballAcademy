@@ -1,13 +1,15 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { DataSourceUnavailableError } from "@/lib/db/errors";
 
 /**
- * Prisma client singleton (driver adapter for MySQL/MariaDB), resolved
+ * Prisma client singleton (driver adapter for PostgreSQL/Neon), resolved
  * lazily.
  *
- * - Hostinger Web/Cloud hosting exposes MySQL (MariaDB); the mariadb
- *   driver adapter supports both MySQL and MariaDB.
+ * - Neon exposes a pooled connection string (DATABASE_URL, for runtime
+ *   queries) and a direct connection string (DIRECT_URL, used by the
+ *   Prisma CLI for migrations). This client always uses the pooled
+ *   DATABASE_URL.
  * - No connection is opened at import time and no client is constructed
  *   until the first query, so the app builds and runs without a local
  *   database. A missing DATABASE_URL surfaces as a
@@ -23,7 +25,7 @@ function createPrismaClient(): PrismaClient {
       "DATABASE_URL is not set. Copy .env.example to .env and configure it."
     );
   }
-  const adapter = new PrismaMariaDb(url);
+  const adapter = new PrismaPg({ connectionString: url });
   return new PrismaClient({ adapter });
 }
 

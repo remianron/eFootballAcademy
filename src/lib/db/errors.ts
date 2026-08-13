@@ -5,7 +5,7 @@ export const DATA_SOURCE_UNAVAILABLE_ERROR_NAME = "DataSourceUnavailableError";
 
 /**
  * Raised when the database cannot be reached: DATABASE_URL is missing,
- * the MySQL/MariaDB server is down, credentials are rejected, or the
+ * the PostgreSQL/Neon server is down, credentials are rejected, or the
  * connection drops. Distinct identity is preserved across the client
  * boundary via the stable `name` value, so error boundaries can show a
  * targeted message without leaking connection details.
@@ -35,6 +35,16 @@ const CONNECTION_ERROR_CODES = new Set([
   "ER_HOST_NOT_PRIVILEGED",
   "ER_SERVER_SHUTDOWN",
   "PROTOCOL_CONNECTION_LOST",
+  // PostgreSQL SQLSTATE codes (Neon / driver adapter):
+  "28P01", // invalid_password
+  "3D000", // invalid_catalog_name (database does not exist)
+  "3F000", // invalid_schema_name
+  "08001", // sqlclient_unable_to_establish_sqlconnection
+  "08003", // connection_does_not_exist
+  "08004", // sqlserver_rejected_establishment_of_sqlconnection
+  "08006", // connection_failure
+  "53300", // too_many_connections
+  "57P03", // cannot_connect_now (server starting up)
 ]);
 
 const CONNECTION_ERROR_PATTERNS = [

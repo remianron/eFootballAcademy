@@ -25,7 +25,7 @@ export const buildInclude = {
   },
   strengths: { orderBy: { order: "asc" } },
   weaknesses: { orderBy: { order: "asc" } },
-  feedback: { orderBy: { date: "desc" } },
+  feedback: { orderBy: { date: { sort: "desc", nulls: "last" } } },
 } satisfies Prisma.BuildInclude;
 
 export type BuildRow = Prisma.BuildGetPayload<{ include: typeof buildInclude }>;

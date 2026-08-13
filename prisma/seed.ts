@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaPg } from "@prisma/adapter-pg";
 import type { StatCategory } from "@/generated/prisma/client";
 import { hashPassword } from "@/lib/auth/password";
 
@@ -61,7 +61,7 @@ async function main() {
   if (!url) {
     throw new Error("DATABASE_URL is not set. Copy .env.example to .env and configure it.");
   }
-  const adapter = new PrismaMariaDb(url);
+  const adapter = new PrismaPg({ connectionString: url });
   const prisma = new PrismaClient({ adapter });
 
   const existingKeys = new Set(

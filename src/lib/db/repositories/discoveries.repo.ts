@@ -100,7 +100,7 @@ export async function listPublishedDiscoveriesForPublic(): Promise<DiscoveryCard
       createdAt: true,
       updatedAt: true,
     },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    orderBy: [{ publishedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
   });
   return rows.map((row) => ({
     id: row.id,
@@ -172,7 +172,7 @@ async function mediaForDiscoveries(
 export async function listDiscoveries(publishOnly = false): Promise<DiscoveryDto[]> {
   const rows = await prisma.discovery.findMany({
     where: publishOnly ? { status: "PUBLISHED" } : undefined,
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    orderBy: [{ publishedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
   });
   const media = await mediaForDiscoveries(rows.map((row) => row.id));
   return rows.map((row) => toDiscovery(row, media.get(row.id) ?? []));
