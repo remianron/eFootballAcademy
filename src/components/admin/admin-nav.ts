@@ -5,6 +5,7 @@ import {
   IconFlask,
   IconFormation,
   IconGrid,
+  IconPulse,
   IconStar,
   IconUsers,
   type IconProps,
@@ -24,6 +25,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: "/admin/formations", label: "Formations", icon: IconFormation },
   { href: "/admin/discoveries", label: "Discoveries", icon: IconFlask },
   { href: "/admin/coaches", label: "Coaches", icon: IconUsers },
+  { href: "/admin/bookings", label: "Bookings", icon: IconPulse },
   { href: "/admin/featured", label: "Featured Content", icon: IconStar },
 ];
 

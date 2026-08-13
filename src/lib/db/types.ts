@@ -1,4 +1,6 @@
 import type {
+  BookingStatus,
+  ContactMethod,
   DiscoveryCategory,
   Difficulty,
   FeaturedContentType,
@@ -236,4 +238,19 @@ export interface FeaturedEntryDto {
   createdAt: Date;
   updatedAt: Date;
   content: FeaturedContentReferenceDto | null;
+}
+
+export interface BookingDto {
+  id: string;
+  coachId: string;
+  coachName: string;
+  coachSlug: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  contactMethod: ContactMethod | null;
+  message: string;
+  status: BookingStatus;
+  createdAt: string;
+  updatedAt: string;
 }

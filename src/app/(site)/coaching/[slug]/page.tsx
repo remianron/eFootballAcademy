@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Container, Section } from "@/components";
-import { IconExternalLink, IconUsers } from "@/components/icons";
+import { Button, Container, Section } from "@/components";
+import { IconExternalLink } from "@/components/icons";
 import { initials } from "@/lib/labels";
 import { getPublishedCoachBySlug } from "@/lib/public";
 
@@ -88,12 +88,24 @@ export default async function CoachPage({
                 </ul>
               </div>
 
-              <div className="mt-8 rounded-card border border-border bg-card p-5">
-                <p className="flex items-center gap-2 text-xs text-muted">
-                  <IconUsers className="h-4 w-4 text-electric" />
-                  Booking and sessions arrive in a future phase.
-                </p>
-              </div>
+              {coach.booking?.enabled && (
+                <div className="mt-8 rounded-card border border-border bg-card p-5">
+                  <p className="text-xs font-semibold tracking-wide text-secondary uppercase">
+                    Request a booking
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                    Send a booking request and the coaching team will get back
+                    to you.
+                  </p>
+                  <Button
+                    className="mt-4"
+                    size="sm"
+                    href={`/coaching/${coach.slug}/book`}
+                  >
+                    Request a Booking
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="min-w-0 space-y-10">

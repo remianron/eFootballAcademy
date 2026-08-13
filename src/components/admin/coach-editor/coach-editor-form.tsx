@@ -147,7 +147,7 @@ export function CoachEditorForm({
               label="Booking enabled"
               checked={form.bookingEnabled}
               onCheckedChange={(bookingEnabled) => set({ bookingEnabled })}
-              hint="Shows the booking action on the profile. Sessions and payments arrive in a later phase."
+              hint="Lets visitors request a booking from the public profile. Sessions and payments arrive in a later phase."
             />
           </div>
         </EditorSection>

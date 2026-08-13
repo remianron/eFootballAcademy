@@ -96,6 +96,17 @@ enum AdminRole {
   OWNER
 }
 
+enum BookingStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+}
+
 // ── Identity (ownership/audit only — no auth this phase) ──────────
 
 model AdminUser {
@@ -367,6 +378,7 @@ model Coach {
   updatedBy   AdminUser?   @relation("CoachUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
   socialLinks CoachSocialLink[]
+  bookings    BookingRequest[]
 }
 
 model CoachSocialLink {
@@ -423,4 +435,23 @@ model FeaturedItem {
 
   @@unique([contentType, contentId, placement])
   @@index([placement, active, order])
+}
+
+// ── Coach booking requests (visitor-submitted) ────────────────────
+
+model BookingRequest {
+  id            String        @id @default(cuid())
+  coachId       String
+  coach         Coach         @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  name          String        @db.VarChar(100)
+  email         String        @db.VarChar(254)
+  phone         String?       @db.VarChar(30)
+  contactMethod ContactMethod?
+  message       String        @db.Text
+  status        BookingStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([coachId, status])
 }

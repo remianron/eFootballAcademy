@@ -15,7 +15,7 @@ export async function CoachesSection() {
           <SectionHeading
             eyebrow="Expert Coaches"
             title="Learn from experienced eFootball coaches."
-            description="Public coaching profiles — booking and sessions arrive in a later phase."
+            description="Public coaching profiles — request a booking directly from any coach profile."
           />
           <Button href="/coaching" variant="outline" size="sm">
             All Coaches

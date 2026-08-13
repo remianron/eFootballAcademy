@@ -1,4 +1,6 @@
 import type {
+  BookingStatus,
+  ContactMethod,
   Difficulty,
   DiscoveryCategory,
   FeaturedContentType,
@@ -78,3 +80,18 @@ export const FEATURED_CONTENT_TYPE_LABELS: Record<
 export const FEATURED_CONTENT_TYPE_OPTIONS = Object.entries(
   FEATURED_CONTENT_TYPE_LABELS
 ).map(([value, label]) => ({ value, label }));
+
+export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
+  NEW: "New",
+  CONTACTED: "Contacted",
+  CLOSED: "Closed",
+};
+
+export const BOOKING_STATUS_OPTIONS = Object.entries(
+  BOOKING_STATUS_LABELS
+).map(([value, label]) => ({ value, label }));
+
+export const CONTACT_METHOD_LABELS: Record<ContactMethod, string> = {
+  EMAIL: "Email",
+  PHONE: "Phone",
+};
