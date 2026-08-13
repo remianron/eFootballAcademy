@@ -292,6 +292,42 @@ CREATE TABLE `FeaturedItem` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `BookingRequest` (
+    `id` VARCHAR(191) NOT NULL,
+    `coachId` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(100) NOT NULL,
+    `email` VARCHAR(254) NOT NULL,
+    `phone` VARCHAR(30) NULL,
+    `contactMethod` ENUM('EMAIL', 'PHONE') NULL,
+    `message` TEXT NOT NULL,
+    `status` ENUM('NEW', 'CONTACTED', 'CLOSED') NOT NULL DEFAULT 'NEW',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `BookingRequest_coachId_status_idx`(`coachId`, `status`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Session` (
+    `id` VARCHAR(191) NOT NULL,
+    `bookingRequestId` VARCHAR(191) NOT NULL,
+    `coachId` VARCHAR(191) NOT NULL,
+    `scheduledAt` DATETIME(3) NOT NULL,
+    `durationMinutes` INTEGER NOT NULL,
+    `status` ENUM('CONFIRMED', 'COMPLETED', 'CANCELLED') NOT NULL DEFAULT 'CONFIRMED',
+    `priceAmount` DECIMAL(10, 2) NULL,
+    `currency` VARCHAR(3) NULL,
+    `notes` TEXT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Session_bookingRequestId_key`(`bookingRequestId`),
+    INDEX `Session_coachId_status_idx`(`coachId`, `status`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `PlayerCard` ADD CONSTRAINT `PlayerCard_playerId_fkey` FOREIGN KEY (`playerId`) REFERENCES `Player`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -357,3 +393,12 @@ ALTER TABLE `FeaturedItem` ADD CONSTRAINT `FeaturedItem_createdById_fkey` FOREIG
 
 -- AddForeignKey
 ALTER TABLE `FeaturedItem` ADD CONSTRAINT `FeaturedItem_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `AdminUser`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BookingRequest` ADD CONSTRAINT `BookingRequest_coachId_fkey` FOREIGN KEY (`coachId`) REFERENCES `Coach`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Session` ADD CONSTRAINT `Session_bookingRequestId_fkey` FOREIGN KEY (`bookingRequestId`) REFERENCES `BookingRequest`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Session` ADD CONSTRAINT `Session_coachId_fkey` FOREIGN KEY (`coachId`) REFERENCES `Coach`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
