@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Container, PageHeader, Section } from "@/components";
 import { FormationCard } from "@/components/content/formation-card";
-import { getFormationGuides } from "@/lib/content";
+import { getPublishedFormations } from "@/lib/public";
 
 export const metadata: Metadata = {
   title: "Formations | eFootball Academy",
@@ -9,8 +9,10 @@ export const metadata: Metadata = {
     "Formation guides with playstyles, player roles, tactical instructions and strengths and weaknesses — from eFootball Academy coaches.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function FormationsPage() {
-  const formations = await getFormationGuides();
+  const formations = await getPublishedFormations();
 
   return (
     <>

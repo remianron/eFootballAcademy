@@ -6,6 +6,8 @@ import { DiscoveriesSection } from "@/components/home/discoveries-section";
 import { CoachesSection } from "@/components/home/coaches-section";
 import { FinalCta } from "@/components/home/final-cta";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <>

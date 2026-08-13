@@ -1,7 +1,7 @@
 import { Badge, Button, Container, Section, SectionHeading } from "@/components";
 import { StatBars } from "@/components/content/attribute-bars";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
-import { getFeaturedContent } from "@/lib/content";
+import { getFeaturedContent } from "@/lib/public";
 
 export async function BuildSpotlight() {
   const featured = await getFeaturedContent("featured");

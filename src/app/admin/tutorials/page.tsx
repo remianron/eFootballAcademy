@@ -1,29 +1,32 @@
 import type { Metadata } from "next";
 import {
-  AdminCapabilities,
   AdminEmptyState,
   AdminPageHeader,
-  AdminRowActions,
-  AdminStatusBadge,
   AdminTable,
   type AdminColumn,
 } from "@/components/admin";
 import { Badge, Button, Card } from "@/components";
-import { getAdminTutorials } from "@/lib/admin";
+import { ContentStatusBadge } from "@/components/admin/content-editor";
+import { IconEdit, IconEye } from "@/components/icons";
+import {
+  listTutorialsOverview,
+  type TutorialOverviewRow,
+} from "@/lib/db/repositories/tutorials.repo";
+import { formatDate } from "@/lib/labels";
 import {
   DIFFICULTY_LABELS,
-  formatDate,
   TUTORIAL_CATEGORY_LABELS,
-} from "@/lib/labels";
-import type { Tutorial } from "@/content/types";
+} from "@/lib/content-editor/labels";
 
 export const metadata: Metadata = {
   title: "Tutorials",
 };
 
-const columns: AdminColumn<Tutorial>[] = [
+export const dynamic = "force-dynamic";
+
+const columns: AdminColumn<TutorialOverviewRow>[] = [
   {
-    header: "Tutorial",
+    header: "Title",
     render: (tutorial) => (
       <div>
         <p className="font-medium text-foreground">{tutorial.title}</p>
@@ -34,26 +37,20 @@ const columns: AdminColumn<Tutorial>[] = [
   {
     header: "Category",
     render: (tutorial) => (
-      <Badge variant="neutral">
-        {TUTORIAL_CATEGORY_LABELS[tutorial.category]}
-      </Badge>
+      <Badge variant="neutral">{TUTORIAL_CATEGORY_LABELS[tutorial.category]}</Badge>
     ),
     className: "whitespace-nowrap",
   },
   {
     header: "Difficulty",
     render: (tutorial) => (
-      <span className="text-secondary">
-        {DIFFICULTY_LABELS[tutorial.difficulty]}
-      </span>
+      <span className="text-secondary">{DIFFICULTY_LABELS[tutorial.difficulty]}</span>
     ),
     className: "whitespace-nowrap",
   },
   {
     header: "Status",
-    render: (tutorial) => (
-      <AdminStatusBadge status={tutorial.publishedStatus} />
-    ),
+    render: (tutorial) => <ContentStatusBadge status={tutorial.status} />,
     className: "whitespace-nowrap",
   },
   {
@@ -68,10 +65,26 @@ const columns: AdminColumn<Tutorial>[] = [
   {
     header: "Actions",
     render: (tutorial) => (
-      <AdminRowActions
-        viewHref={`/tutorials/${tutorial.slug}`}
-        status={tutorial.publishedStatus}
-      />
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/tutorials/${tutorial.slug}`}
+        >
+          <IconEye className="h-3.5 w-3.5" />
+          View
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/admin/tutorials/${tutorial.id}/edit`}
+        >
+          <IconEdit className="h-3.5 w-3.5" />
+          Edit
+        </Button>
+      </div>
     ),
     className: "whitespace-nowrap",
     headerClassName: "text-right",
@@ -79,22 +92,23 @@ const columns: AdminColumn<Tutorial>[] = [
 ];
 
 export default async function AdminTutorialsPage() {
-  const tutorials = await getAdminTutorials();
+  const tutorials = await listTutorialsOverview();
 
   return (
     <>
       <AdminPageHeader
         eyebrow="Tutorials"
         title="Tutorial management"
-        description="Training tutorials published by the Academy. Editing, publishing and deleting become available in a later phase."
-        actions={<Button disabled>New tutorial</Button>}
+        description="Tutorials are structured step-by-step guides. Drafts stay hidden until you publish them."
+        actions={<Button href="/admin/tutorials/new">New tutorial</Button>}
       />
 
       <div className="mt-6">
         {tutorials.length === 0 ? (
           <AdminEmptyState
             title="No tutorials yet"
-            description="Tutorials created here will appear in this list."
+            description="Create the first tutorial — it will appear here as a draft."
+            action={<Button href="/admin/tutorials/new">New tutorial</Button>}
           />
         ) : (
           <Card padded={false}>
@@ -106,8 +120,6 @@ export default async function AdminTutorialsPage() {
           </Card>
         )}
       </div>
-
-      <AdminCapabilities noun="tutorials" />
     </>
   );
 }

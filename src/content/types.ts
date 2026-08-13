@@ -107,6 +107,7 @@ export interface Discovery extends BaseContent {
   excerpt: string;
   thumbnail?: Media;
   content: string;
+  findings?: string[];
   author: string;
   sources?: string[];
   publishedAt?: string;

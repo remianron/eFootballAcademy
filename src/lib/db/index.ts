@@ -1,0 +1,12 @@
+export { prisma } from "@/lib/db/client";
+export * from "@/lib/db/types";
+export * from "@/lib/db/repositories/attributes.repo";
+export * from "@/lib/db/repositories/players.repo";
+export * from "@/lib/db/repositories/builds.repo";
+export * from "@/lib/db/repositories/builds.editor.repo";
+export * from "@/lib/db/repositories/tutorials.repo";
+export * from "@/lib/db/repositories/formations.repo";
+export * from "@/lib/db/repositories/coaches.repo";
+export * from "@/lib/db/repositories/discoveries.repo";
+export * from "@/lib/db/repositories/media.repo";
+export * from "@/lib/db/repositories/featured.repo";

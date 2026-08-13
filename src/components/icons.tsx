@@ -308,6 +308,24 @@ export function IconChevronDown(props: IconProps) {
   );
 }
 
+export function IconArrowUp(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 19V5" />
+      <path d="m5 12 7-7 7 7" />
+    </Icon>
+  );
+}
+
+export function IconArrowDown(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 5v14" />
+      <path d="m5 12 7 7 7-7" />
+    </Icon>
+  );
+}
+
 export function IconFileText(props: IconProps) {
   return (
     <Icon {...props}>

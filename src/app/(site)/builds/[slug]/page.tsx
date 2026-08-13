@@ -7,21 +7,17 @@ import { BuildMediaList } from "@/components/content/build-media";
 import { CommunityFeedbackList } from "@/components/content/community-feedback";
 import { cn } from "@/lib/cn";
 import {
-  getBuildBySlug,
-  getBuilds,
-  getBuildsForCard,
-} from "@/lib/content";
+  getPublishedBuildBySlug,
+  getPublishedBuildsForCard,
+} from "@/lib/public";
 
-export async function generateStaticParams() {
-  const builds = await getBuilds();
-  return builds.map((build) => ({ slug: build.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/builds/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const build = await getBuildBySlug(slug);
+  const build = await getPublishedBuildBySlug(slug);
   if (!build) {
     return { title: "Build not found | eFootball Academy" };
   }
@@ -35,10 +31,13 @@ export default async function BuildPage({
   params,
 }: PageProps<"/builds/[slug]">) {
   const { slug } = await params;
-  const build = await getBuildBySlug(slug);
+  const build = await getPublishedBuildBySlug(slug);
   if (!build) notFound();
 
-  const cardBuilds = await getBuildsForCard(build.playerName, build.cardName);
+  const cardBuilds = await getPublishedBuildsForCard(
+    build.playerName,
+    build.cardName
+  );
   const showSwitcher = cardBuilds.length > 1;
 
   return (

@@ -1,6 +1,6 @@
 import { Button, Container, Section, SectionHeading } from "@/components";
 import { CoachCard } from "@/components/content/coach-card";
-import { getFeaturedContent } from "@/lib/content";
+import { getFeaturedContent } from "@/lib/public";
 
 export async function CoachesSection() {
   const featured = await getFeaturedContent("featured");

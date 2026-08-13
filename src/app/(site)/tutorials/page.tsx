@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Container, PageHeader, Section } from "@/components";
 import { TutorialCard } from "@/components/content/tutorial-card";
 import { TUTORIAL_CATEGORY_LABELS, TUTORIAL_CATEGORY_ORDER } from "@/lib/labels";
-import { getTutorials } from "@/lib/content";
+import { getPublishedTutorials } from "@/lib/public";
 import type { TutorialCategory } from "@/content/types";
 
 export const metadata: Metadata = {
@@ -11,8 +11,10 @@ export const metadata: Metadata = {
     "eFootball Academy tutorials — free kicks, skills, dribbling, passing and shooting, taught by experienced coaches.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function TutorialsPage() {
-  const tutorials = await getTutorials();
+  const tutorials = await getPublishedTutorials();
 
   const grouped = TUTORIAL_CATEGORY_ORDER.map((category) => ({
     category,

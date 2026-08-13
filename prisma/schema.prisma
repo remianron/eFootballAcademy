@@ -1,0 +1,426 @@
+// eFootball Academy — CMS data foundation (Phase 5B)
+// Database: MySQL (MariaDB-compatible) — Hostinger Web/Cloud hosting supports MySQL only.
+// ORM: Prisma 7 (Rust-free client) + @prisma/adapter-mariadb driver adapter.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ── Enums ──────────────────────────────────────────────────────────
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED // soft-delete: archive instead of hard-delete by default
+}
+
+enum StatCategory {
+  OFFENSIVE
+  DEFENSIVE
+  PHYSICAL
+  GOALKEEPER
+}
+
+enum MediaKind {
+  YOUTUBE_VIDEO // stores youtubeVideoId + aspectRatio, never a full embed/URL
+  IMAGE
+  GIF
+}
+
+enum MediaOwnerType {
+  BUILD
+  TUTORIAL
+  FORMATION_GUIDE
+  DISCOVERY
+  COACH
+}
+
+enum FeaturedContentType {
+  BUILD
+  TUTORIAL
+  FORMATION_GUIDE
+  DISCOVERY
+  COACH
+}
+
+enum FeaturedPlacement {
+  HERO
+  FEATURED
+  SIDEBAR
+  LATEST
+}
+
+enum TutorialCategory {
+  FREE_KICKS
+  SKILLS
+  DRIBBLING
+  PASSING
+  SHOOTING
+  CORNERS
+  MECHANICS
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum DiscoveryCategory {
+  EFOOTBALL_SCIENCE
+  EXPERIMENTS
+  COMMUNITY
+  MECHANICS
+  UPDATES
+  META
+}
+
+enum ResearchStatus {
+  EXAMPLE
+  FIELD_VERIFIED
+}
+
+enum FeedbackPlatform {
+  YOUTUBE
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+}
+
+enum AdminRole {
+  OWNER
+}
+
+// ── Identity (ownership/audit only — no auth this phase) ──────────
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  displayName  String
+  passwordHash String
+  role         AdminRole @default(OWNER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  createdBuilds      Build[]          @relation("BuildCreatedBy")
+  updatedBuilds      Build[]          @relation("BuildUpdatedBy")
+  createdTutorials   Tutorial[]       @relation("TutorialCreatedBy")
+  updatedTutorials   Tutorial[]       @relation("TutorialUpdatedBy")
+  createdFormations  FormationGuide[] @relation("FormationCreatedBy")
+  updatedFormations  FormationGuide[] @relation("FormationUpdatedBy")
+  createdCoaches     Coach[]          @relation("CoachCreatedBy")
+  updatedCoaches     Coach[]          @relation("CoachUpdatedBy")
+  createdDiscoveries Discovery[]      @relation("DiscoveryCreatedBy")
+  updatedDiscoveries Discovery[]      @relation("DiscoveryUpdatedBy")
+  createdFeatured    FeaturedItem[]   @relation("FeaturedCreatedBy")
+  updatedFeatured    FeaturedItem[]   @relation("FeaturedUpdatedBy")
+}
+
+// ── Player / PlayerCard / Build hierarchy ─────────────────────────
+
+model Player {
+  id        String      @id @default(cuid())
+  slug      String      @unique
+  name      String
+  bio       String?     @db.Text
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  cards     PlayerCard[]
+}
+
+model PlayerCard {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  cardName String  @db.VarChar(255) // "eFootball Points — Epic"
+  rarity   String? // "Epic"
+  position String // "CF"
+  overall  Int // 94 — inherited by every build variant on this card
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  builds    Build[]
+
+  @@unique([playerId, cardName])
+}
+
+model Build {
+  id              String       @id @default(cuid())
+  slug            String       @unique // public URL slug: "k-ambrose-sole-control"
+  cardId          String
+  card            PlayerCard   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  buildName       String // "Sole Control Build"
+  shortDescription String     @db.Text
+  philosophy      String      @db.Text
+  playstyle       String?
+  skills          Json        @default("[]") // string[] — ordered simple list
+  recommendedFor  Json        @default("[]") // string[]
+  avoidFor        Json        @default("[]") // string[]
+
+  status          PublishStatus @default(DRAFT)
+  publishedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdById     String?
+  createdBy       AdminUser?   @relation("BuildCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById     String?
+  updatedBy       AdminUser?   @relation("BuildUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  statistics      BuildStatistic[]
+  strengths       BuildStrength[]
+  weaknesses      BuildWeakness[]
+  feedback        BuildFeedback[] // curated quotes — NEVER reuse this table for future user comments
+  // NOTE: build media is NOT a Prisma relation — it lives in Media (ownerType=BUILD, ownerId=this.id).
+}
+
+// ── Attribute catalog (canonical, seedable, extensible) ───────────
+
+model Attribute {
+  id        String       @id @default(cuid())
+  key       String       @unique // stable machine key: "finishing", "gk_reflexes"
+  name      String       @unique // display name: "Finishing", "GK Reflexes"
+  category  StatCategory // OFFENSIVE | DEFENSIVE | PHYSICAL | GOALKEEPER
+  sortIndex Int          @default(0) // canonical in-game display order
+  active    Boolean      @default(true) // retire without deleting; new attributes = new rows
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  statistics BuildStatistic[]
+}
+
+// ── Build statistics: full manual entry + independent Key Attribute selection ──
+
+model BuildStatistic {
+  id          String    @id @default(cuid())
+  buildId     String
+  build       Build     @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  attributeId String
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Restrict)
+
+  // Admin enters the FULL stat sheet manually from the progression screenshot (no OCR).
+  // Key Attributes are an independent selection on top of the full sheet.
+  value    Int // 0–101, validated in application code
+  isKey    Boolean @default(false) // admin-selected Key Attribute
+  keyOrder Int? // display order among selected keys
+
+  @@unique([buildId, attributeId])
+  @@index([buildId, isKey])
+}
+
+// ── Ordered single-line content ───────────────────────────────────
+
+model BuildStrength {
+  id      String @id @default(cuid())
+  buildId String
+  build   Build  @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  text    String @db.Text
+  order   Int
+  @@unique([buildId, order])
+}
+
+model BuildWeakness {
+  id      String @id @default(cuid())
+  buildId String
+  build   Build  @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  text    String @db.Text
+  order   Int
+  @@unique([buildId, order])
+}
+
+// ── Curated community feedback (admin-managed, separate from future user comments) ──
+
+model BuildFeedback {
+  id         String           @id @default(cuid())
+  buildId    String
+  build      Build            @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  platform   FeedbackPlatform
+  author     String
+  comment    String           @db.Text
+  profileUrl String?
+  avatarUrl  String?
+  date       DateTime?
+  verified   Boolean          @default(false)
+}
+
+// ── Polymorphic media ─────────────────────────────────────────────
+
+model Media {
+  id        String        @id @default(cuid())
+  ownerType MediaOwnerType
+  ownerId   String // no FK — resolves to Build/Tutorial/FormationGuide/Discovery/Coach
+
+  kind MediaKind
+
+  // video (YOUTUBE_VIDEO): YouTube ID + aspect ratio only
+  youtubeVideoId String?
+  aspectRatio    String @default("16:9") // "16:9" | "9:16" | "1:1"
+  thumbnailUrl   String? // custom preview; null = YouTube auto thumb
+
+  // image/gif (IMAGE | GIF): asset URL/path — storage provider plugged in later
+  url String?
+
+  alt       String?
+  caption   String?
+  isPrimary Boolean @default(false)
+  order     Int     @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([ownerType, ownerId, order])
+}
+
+// ── Tutorials ─────────────────────────────────────────────────────
+
+model Tutorial {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String          @db.VarChar(255)
+  category    TutorialCategory
+  description String          @db.Text
+  content     String          @db.Text
+  difficulty  Difficulty
+  tips        Json            @default("[]") // string[]
+
+  status      PublishStatus   @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  createdById String?
+  createdBy   AdminUser?      @relation("TutorialCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   AdminUser?      @relation("TutorialUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  steps TutorialStep[]
+}
+
+model TutorialStep {
+  id         String   @id @default(cuid())
+  tutorialId String
+  tutorial   Tutorial @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+  text       String   @db.Text
+  order      Int
+  @@unique([tutorialId, order])
+}
+
+// ── Formation guides ──────────────────────────────────────────────
+
+model FormationGuide {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String     @db.VarChar(255)
+  formation   String // "4-2-1-3"
+  playstyle   String // "Possession"
+  description String     @db.Text
+  recommendedUsage String @db.Text
+  tacticalInstructions Json @default("[]") // string[]
+  strengths   Json       @default("[]") // string[]
+  weaknesses  Json       @default("[]") // string[]
+
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  createdBy   AdminUser? @relation("FormationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   AdminUser? @relation("FormationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  roles FormationPlayerRole[]
+}
+
+model FormationPlayerRole {
+  id               String         @id @default(cuid())
+  formationGuideId String
+  formationGuide   FormationGuide @relation(fields: [formationGuideId], references: [id], onDelete: Cascade)
+  position         String // "AMF"
+  description      String         @db.Text
+  order            Int
+  @@unique([formationGuideId, order])
+}
+
+// ── Coaches ───────────────────────────────────────────────────────
+
+model Coach {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  name        String
+  bio         String       @db.Text
+  coachingDescription String @db.Text
+  specialties Json         @default("[]") // string[]
+  bookingEnabled Boolean   @default(false)
+
+  status      PublishStatus @default(DRAFT) // legacy active→PUBLISHED, hidden→DRAFT
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdById String?
+  createdBy   AdminUser?   @relation("CoachCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   AdminUser?   @relation("CoachUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  socialLinks CoachSocialLink[]
+}
+
+model CoachSocialLink {
+  id       String @id @default(cuid())
+  coachId  String
+  coach    Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  platform String
+  url      String @db.VarChar(255)
+  order    Int
+  @@unique([coachId, order])
+}
+
+// ── Discoveries ───────────────────────────────────────────────────
+
+model Discovery {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  title          String          @db.VarChar(255)
+  category       DiscoveryCategory
+  excerpt        String          @db.Text
+  content        String          @db.Text
+  findings       Json? // string[] — optional findings bullets
+  author         String // free text, e.g. "RemianRon"
+  sources        Json            @default("[]") // string[]
+  researchStatus ResearchStatus  @default(EXAMPLE)
+
+  status         PublishStatus   @default(DRAFT)
+  publishedAt    DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  createdById    String?
+  createdBy      AdminUser?      @relation("DiscoveryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById    String?
+  updatedBy      AdminUser?      @relation("DiscoveryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+}
+
+// ── Homepage featured content (admin-controlled) ──────────────────
+
+model FeaturedItem {
+  id          String               @id @default(cuid())
+  contentType FeaturedContentType
+  contentId   String // no FK — resolves to a Build/Tutorial/FormationGuide/Discovery/Coach row
+  placement   FeaturedPlacement
+  order       Int
+  active      Boolean              @default(true)
+
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  createdById String?
+  createdBy   AdminUser?           @relation("FeaturedCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   AdminUser?           @relation("FeaturedUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([contentType, contentId, placement])
+  @@index([placement, active, order])
+}

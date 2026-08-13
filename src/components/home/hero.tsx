@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge, Button, Container, Section } from "@/components";
 import { IconArrowRight, IconPulse } from "@/components/icons";
 import { OvrRing } from "@/components/content/attribute-bars";
-import { getFeaturedContent } from "@/lib/content";
+import { getFeaturedContent } from "@/lib/public";
 import type { PlayerBuild } from "@/content/types";
 
 export async function Hero() {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Badge, Container, PageHeader, Section } from "@/components";
 import { BuildCard } from "@/components/content/build-card";
-import { getBuilds } from "@/lib/content";
+import { getPublishedBuilds } from "@/lib/public";
 
 export const metadata: Metadata = {
   title: "Player Builds | eFootball Academy",
@@ -9,8 +9,10 @@ export const metadata: Metadata = {
     "Curated player builds with full statistics, strengths and weaknesses — analyzed and published by eFootball Academy coaches.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function BuildsPage() {
-  const builds = await getBuilds();
+  const builds = await getPublishedBuilds();
 
   return (
     <>

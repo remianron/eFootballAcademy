@@ -1,6 +1,6 @@
 import { Button, Container, Section, SectionHeading } from "@/components";
 import { DiscoveryCard } from "@/components/content/discovery-card";
-import { getFeaturedContent } from "@/lib/content";
+import { getFeaturedContent } from "@/lib/public";
 
 export async function DiscoveriesSection() {
   const [featured, latest] = await Promise.all([

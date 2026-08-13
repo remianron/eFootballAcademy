@@ -3,18 +3,15 @@ import { notFound } from "next/navigation";
 import { Container, Section } from "@/components";
 import { IconExternalLink, IconUsers } from "@/components/icons";
 import { initials } from "@/lib/labels";
-import { getCoachBySlug, getCoaches } from "@/lib/content";
+import { getPublishedCoachBySlug } from "@/lib/public";
 
-export async function generateStaticParams() {
-  const coaches = await getCoaches();
-  return coaches.map((coach) => ({ slug: coach.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/coaching/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const coach = await getCoachBySlug(slug);
+  const coach = await getPublishedCoachBySlug(slug);
   if (!coach) {
     return { title: "Coach not found | eFootball Academy" };
   }
@@ -28,7 +25,7 @@ export default async function CoachPage({
   params,
 }: PageProps<"/coaching/[slug]">) {
   const { slug } = await params;
-  const coach = await getCoachBySlug(slug);
+  const coach = await getPublishedCoachBySlug(slug);
   if (!coach) notFound();
 
   return (

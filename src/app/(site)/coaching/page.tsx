@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Badge, Container, PageHeader, Section } from "@/components";
 import { CoachCard } from "@/components/content/coach-card";
-import { getCoaches } from "@/lib/content";
+import { getPublishedCoaches } from "@/lib/public";
 
 export const metadata: Metadata = {
   title: "Coaching | eFootball Academy",
@@ -9,8 +9,10 @@ export const metadata: Metadata = {
     "Public profiles of eFootball Academy expert coaches — specialties, coaching focus and how they can help you play smarter.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function CoachingPage() {
-  const coaches = await getCoaches();
+  const coaches = await getPublishedCoaches();
 
   return (
     <>

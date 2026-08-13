@@ -1,7 +1,7 @@
 import { Button, Container, Section, SectionHeading } from "@/components";
 import { TutorialCard } from "@/components/content/tutorial-card";
 import { FormationCard } from "@/components/content/formation-card";
-import { getFeaturedContent } from "@/lib/content";
+import { getFeaturedContent } from "@/lib/public";
 
 export async function LearningSection() {
   const featured = await getFeaturedContent("featured");

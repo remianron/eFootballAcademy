@@ -1,71 +1,82 @@
 import type { Metadata } from "next";
 import {
-  AdminCapabilities,
   AdminEmptyState,
   AdminPageHeader,
-  AdminRowActions,
-  AdminStatusBadge,
   AdminTable,
   type AdminColumn,
 } from "@/components/admin";
-import { Button, Card } from "@/components";
-import { getAdminCoaches } from "@/lib/admin";
-import { initials } from "@/lib/labels";
-import type { Coach } from "@/content/types";
+import { Badge, Button, Card } from "@/components";
+import { ContentStatusBadge } from "@/components/admin/content-editor";
+import { IconEdit, IconEye } from "@/components/icons";
+import {
+  listCoachesOverview,
+  type CoachOverviewRow,
+} from "@/lib/db/repositories/coaches.repo";
+import { formatDate } from "@/lib/labels";
 
 export const metadata: Metadata = {
   title: "Coaches",
 };
 
-const columns: AdminColumn<Coach>[] = [
+export const dynamic = "force-dynamic";
+
+const columns: AdminColumn<CoachOverviewRow>[] = [
   {
-    header: "Coach",
+    header: "Name",
     render: (coach) => (
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-primary/40 bg-primary/10 text-xs font-bold text-electric">
-          {initials(coach.name)}
-        </span>
-        <div>
-          <p className="font-medium text-foreground">{coach.name}</p>
-          <p className="mt-0.5 text-xs text-muted">{coach.slug}</p>
-        </div>
+      <div>
+        <p className="font-medium text-foreground">{coach.name}</p>
+        <p className="mt-0.5 text-xs text-muted">{coach.slug}</p>
       </div>
     ),
   },
   {
-    header: "Specialties",
-    render: (coach) => (
-      <span className="text-xs leading-relaxed text-secondary">
-        {coach.specialties.slice(0, 2).join(", ")}
-        {coach.specialties.length > 2
-          ? ` +${coach.specialties.length - 2} more`
-          : ""}
-      </span>
-    ),
-  },
-  {
-    header: "Social links",
-    render: (coach) => (
-      <span className="text-secondary tabular-nums">
-        {coach.socialLinks.length}
-      </span>
-    ),
+    header: "Booking",
+    render: (coach) =>
+      coach.bookingEnabled ? (
+        <Badge variant="success">Enabled</Badge>
+      ) : (
+        <span className="text-xs text-muted">Off</span>
+      ),
     className: "whitespace-nowrap",
   },
   {
     header: "Status",
-    render: (coach) => <AdminStatusBadge status={coach.status} />,
+    render: (coach) => <ContentStatusBadge status={coach.status} />,
     className: "whitespace-nowrap",
   },
   {
     header: "Updated",
-    render: () => <span className="text-muted">—</span>,
+    render: (coach) => (
+      <span className="text-xs text-muted tabular-nums">
+        {formatDate(coach.updatedAt)}
+      </span>
+    ),
     className: "whitespace-nowrap",
   },
   {
     header: "Actions",
     render: (coach) => (
-      <AdminRowActions viewHref={`/coaching/${coach.slug}`} status={coach.status} />
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/coaching/${coach.slug}`}
+        >
+          <IconEye className="h-3.5 w-3.5" />
+          View
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/admin/coaches/${coach.id}/edit`}
+        >
+          <IconEdit className="h-3.5 w-3.5" />
+          Edit
+        </Button>
+      </div>
     ),
     className: "whitespace-nowrap",
     headerClassName: "text-right",
@@ -73,22 +84,23 @@ const columns: AdminColumn<Coach>[] = [
 ];
 
 export default async function AdminCoachesPage() {
-  const coaches = await getAdminCoaches();
+  const coaches = await listCoachesOverview();
 
   return (
     <>
       <AdminPageHeader
         eyebrow="Coaches"
         title="Coach management"
-        description="Academy coaches shown on the homepage and coaching pages. Editing, publishing and deleting become available in a later phase."
-        actions={<Button disabled>New coach</Button>}
+        description="Public coach profiles carry a bio, specialties and social links. Drafts stay hidden until you publish them."
+        actions={<Button href="/admin/coaches/new">New coach</Button>}
       />
 
       <div className="mt-6">
         {coaches.length === 0 ? (
           <AdminEmptyState
             title="No coaches yet"
-            description="Coaches created here will appear in this list."
+            description="Create the first coach profile — it will appear here as a draft."
+            action={<Button href="/admin/coaches/new">New coach</Button>}
           />
         ) : (
           <Card padded={false}>
@@ -100,8 +112,6 @@ export default async function AdminCoachesPage() {
           </Card>
         )}
       </div>
-
-      <AdminCapabilities noun="coaches" />
     </>
   );
 }

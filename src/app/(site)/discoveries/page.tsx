@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Container, PageHeader, Section } from "@/components";
 import { DiscoveryCard } from "@/components/content/discovery-card";
-import { getDiscoveries } from "@/lib/content";
+import { getPublishedDiscoveries } from "@/lib/public";
 
 export const metadata: Metadata = {
   title: "Discoveries | eFootball Academy",
@@ -9,8 +9,10 @@ export const metadata: Metadata = {
     "eFootball science, gameplay experiments, mechanics and meta analysis — from the Academy research desk. Example research is always clearly marked.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function DiscoveriesPage() {
-  const discoveries = await getDiscoveries();
+  const discoveries = await getPublishedDiscoveries();
 
   return (
     <>

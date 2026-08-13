@@ -9,19 +9,16 @@ import {
   paragraphs,
   TUTORIAL_CATEGORY_LABELS,
 } from "@/lib/labels";
-import { getTutorialBySlug, getTutorials } from "@/lib/content";
+import { getPublishedTutorialBySlug } from "@/lib/public";
 import type { Difficulty } from "@/content/types";
 
-export async function generateStaticParams() {
-  const tutorials = await getTutorials();
-  return tutorials.map((tutorial) => ({ slug: tutorial.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/tutorials/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const tutorial = await getTutorialBySlug(slug);
+  const tutorial = await getPublishedTutorialBySlug(slug);
   if (!tutorial) {
     return { title: "Tutorial not found | eFootball Academy" };
   }
@@ -41,7 +38,7 @@ export default async function TutorialPage({
   params,
 }: PageProps<"/tutorials/[slug]">) {
   const { slug } = await params;
-  const tutorial = await getTutorialBySlug(slug);
+  const tutorial = await getPublishedTutorialBySlug(slug);
   if (!tutorial) notFound();
 
   const body = paragraphs(tutorial.content);

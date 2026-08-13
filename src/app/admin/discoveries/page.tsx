@@ -1,29 +1,32 @@
 import type { Metadata } from "next";
 import {
-  AdminCapabilities,
   AdminEmptyState,
   AdminPageHeader,
-  AdminRowActions,
-  AdminStatusBadge,
   AdminTable,
   type AdminColumn,
 } from "@/components/admin";
 import { Badge, Button, Card } from "@/components";
-import { getAdminDiscoveries } from "@/lib/admin";
+import { ContentStatusBadge } from "@/components/admin/content-editor";
+import { IconEdit, IconEye } from "@/components/icons";
+import {
+  listDiscoveriesOverview,
+  type DiscoveryOverviewRow,
+} from "@/lib/db/repositories/discoveries.repo";
+import { formatDate } from "@/lib/labels";
 import {
   DISCOVERY_CATEGORY_LABELS,
-  formatDate,
   RESEARCH_STATUS_LABELS,
-} from "@/lib/labels";
-import type { Discovery } from "@/content/types";
+} from "@/lib/content-editor/labels";
 
 export const metadata: Metadata = {
   title: "Discoveries",
 };
 
-const columns: AdminColumn<Discovery>[] = [
+export const dynamic = "force-dynamic";
+
+const columns: AdminColumn<DiscoveryOverviewRow>[] = [
   {
-    header: "Discovery",
+    header: "Title",
     render: (discovery) => (
       <div>
         <p className="font-medium text-foreground">{discovery.title}</p>
@@ -41,28 +44,17 @@ const columns: AdminColumn<Discovery>[] = [
     className: "whitespace-nowrap",
   },
   {
-    header: "Author",
-    render: (discovery) => (
-      <span className="text-secondary">{discovery.author}</span>
-    ),
-  },
-  {
     header: "Research",
-    render: (discovery) =>
-      discovery.researchStatus ? (
-        <Badge variant="purple">
-          {RESEARCH_STATUS_LABELS[discovery.researchStatus]}
-        </Badge>
-      ) : (
-        <span className="text-muted">—</span>
-      ),
+    render: (discovery) => (
+      <span className="text-secondary">
+        {RESEARCH_STATUS_LABELS[discovery.researchStatus]}
+      </span>
+    ),
     className: "whitespace-nowrap",
   },
   {
     header: "Status",
-    render: (discovery) => (
-      <AdminStatusBadge status={discovery.publishedStatus} />
-    ),
+    render: (discovery) => <ContentStatusBadge status={discovery.status} />,
     className: "whitespace-nowrap",
   },
   {
@@ -77,10 +69,26 @@ const columns: AdminColumn<Discovery>[] = [
   {
     header: "Actions",
     render: (discovery) => (
-      <AdminRowActions
-        viewHref={`/discoveries/${discovery.slug}`}
-        status={discovery.publishedStatus}
-      />
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/discoveries/${discovery.slug}`}
+        >
+          <IconEye className="h-3.5 w-3.5" />
+          View
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/admin/discoveries/${discovery.id}/edit`}
+        >
+          <IconEdit className="h-3.5 w-3.5" />
+          Edit
+        </Button>
+      </div>
     ),
     className: "whitespace-nowrap",
     headerClassName: "text-right",
@@ -88,22 +96,23 @@ const columns: AdminColumn<Discovery>[] = [
 ];
 
 export default async function AdminDiscoveriesPage() {
-  const discoveries = await getAdminDiscoveries();
+  const discoveries = await listDiscoveriesOverview();
 
   return (
     <>
       <AdminPageHeader
         eyebrow="Discoveries"
         title="Discovery management"
-        description="eFootball Science articles, experiments and meta notes. Editing, publishing and deleting become available in a later phase."
-        actions={<Button disabled>New discovery</Button>}
+        description="Discoveries document research findings and experiments. Drafts stay hidden until you publish them."
+        actions={<Button href="/admin/discoveries/new">New discovery</Button>}
       />
 
       <div className="mt-6">
         {discoveries.length === 0 ? (
           <AdminEmptyState
             title="No discoveries yet"
-            description="Discoveries created here will appear in this list."
+            description="Create the first discovery — it will appear here as a draft."
+            action={<Button href="/admin/discoveries/new">New discovery</Button>}
           />
         ) : (
           <Card padded={false}>
@@ -115,8 +124,6 @@ export default async function AdminDiscoveriesPage() {
           </Card>
         )}
       </div>
-
-      <AdminCapabilities noun="discoveries" />
     </>
   );
 }

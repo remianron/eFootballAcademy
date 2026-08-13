@@ -3,18 +3,15 @@ import { notFound } from "next/navigation";
 import { Badge, Card, Container, Section } from "@/components";
 import { IconTarget } from "@/components/icons";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
-import { getFormationGuideBySlug, getFormationGuides } from "@/lib/content";
+import { getPublishedFormationBySlug } from "@/lib/public";
 
-export async function generateStaticParams() {
-  const formations = await getFormationGuides();
-  return formations.map((formation) => ({ slug: formation.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/formations/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const formation = await getFormationGuideBySlug(slug);
+  const formation = await getPublishedFormationBySlug(slug);
   if (!formation) {
     return { title: "Formation guide not found | eFootball Academy" };
   }
@@ -28,7 +25,7 @@ export default async function FormationPage({
   params,
 }: PageProps<"/formations/[slug]">) {
   const { slug } = await params;
-  const formation = await getFormationGuideBySlug(slug);
+  const formation = await getPublishedFormationBySlug(slug);
   if (!formation) notFound();
 
   return (

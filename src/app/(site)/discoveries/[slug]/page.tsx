@@ -8,19 +8,16 @@ import {
   paragraphs,
   RESEARCH_STATUS_LABELS,
 } from "@/lib/labels";
-import { getDiscoveryBySlug, getDiscoveries } from "@/lib/content";
+import { getPublishedDiscoveryBySlug } from "@/lib/public";
 import type { ResearchStatus } from "@/content/types";
 
-export async function generateStaticParams() {
-  const discoveries = await getDiscoveries();
-  return discoveries.map((discovery) => ({ slug: discovery.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/discoveries/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const discovery = await getDiscoveryBySlug(slug);
+  const discovery = await getPublishedDiscoveryBySlug(slug);
   if (!discovery) {
     return { title: "Discovery not found | eFootball Academy" };
   }
@@ -34,7 +31,7 @@ export default async function DiscoveryPage({
   params,
 }: PageProps<"/discoveries/[slug]">) {
   const { slug } = await params;
-  const discovery = await getDiscoveryBySlug(slug);
+  const discovery = await getPublishedDiscoveryBySlug(slug);
   if (!discovery) notFound();
 
   const researchStatus = discovery.researchStatus ?? "example";

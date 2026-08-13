@@ -1,23 +1,32 @@
 import type { Metadata } from "next";
 import {
-  AdminCapabilities,
   AdminEmptyState,
   AdminPageHeader,
-  AdminRowActions,
   AdminStatusBadge,
   AdminTable,
   type AdminColumn,
 } from "@/components/admin";
 import { Badge, Button, Card } from "@/components";
-import { getAdminBuilds } from "@/lib/admin";
+import { IconEdit, IconEye } from "@/components/icons";
+import { listBuildsOverview, type BuildOverviewRow } from "@/lib/db/repositories/builds.repo";
 import { formatDate } from "@/lib/labels";
-import type { PlayerBuild } from "@/content/types";
 
 export const metadata: Metadata = {
   title: "Builds",
 };
 
-const columns: AdminColumn<PlayerBuild>[] = [
+export const dynamic = "force-dynamic";
+
+const STATUS_BADGE_MAP: Record<
+  BuildOverviewRow["status"],
+  "published" | "draft" | "archived"
+> = {
+  PUBLISHED: "published",
+  DRAFT: "draft",
+  ARCHIVED: "archived",
+};
+
+const columns: AdminColumn<BuildOverviewRow>[] = [
   {
     header: "Player",
     render: (build) => (
@@ -53,7 +62,9 @@ const columns: AdminColumn<PlayerBuild>[] = [
   },
   {
     header: "Status",
-    render: (build) => <AdminStatusBadge status={build.publishedStatus} />,
+    render: (build) => (
+      <AdminStatusBadge status={STATUS_BADGE_MAP[build.status]} />
+    ),
     className: "whitespace-nowrap",
   },
   {
@@ -68,10 +79,26 @@ const columns: AdminColumn<PlayerBuild>[] = [
   {
     header: "Actions",
     render: (build) => (
-      <AdminRowActions
-        viewHref={`/builds/${build.slug}`}
-        status={build.publishedStatus}
-      />
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/builds/${build.slug}`}
+        >
+          <IconEye className="h-3.5 w-3.5" />
+          View
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/admin/builds/${build.id}/edit`}
+        >
+          <IconEdit className="h-3.5 w-3.5" />
+          Edit
+        </Button>
+      </div>
     ),
     className: "whitespace-nowrap",
     headerClassName: "text-right",
@@ -79,22 +106,25 @@ const columns: AdminColumn<PlayerBuild>[] = [
 ];
 
 export default async function AdminBuildsPage() {
-  const builds = await getAdminBuilds();
+  const builds = await listBuildsOverview();
 
   return (
     <>
       <AdminPageHeader
         eyebrow="Builds"
         title="Build management"
-        description="A player card can carry multiple builds — Sole Control, Target Man and others. Editing, publishing and deleting become available in a later phase."
-        actions={<Button disabled>New build</Button>}
+        description="A player card can carry multiple builds — Sole Control, Target Man and others. Draft builds stay hidden until you publish them."
+        actions={
+          <Button href="/admin/builds/new">New build</Button>
+        }
       />
 
       <div className="mt-6">
         {builds.length === 0 ? (
           <AdminEmptyState
             title="No builds yet"
-            description="Builds created here will appear in this list."
+            description="Create the first build — it will appear here as a draft."
+            action={<Button href="/admin/builds/new">New build</Button>}
           />
         ) : (
           <Card padded={false}>
@@ -106,8 +136,6 @@ export default async function AdminBuildsPage() {
           </Card>
         )}
       </div>
-
-      <AdminCapabilities noun="player builds" />
     </>
   );
 }

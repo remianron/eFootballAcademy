@@ -1,23 +1,26 @@
 import type { Metadata } from "next";
 import {
-  AdminCapabilities,
   AdminEmptyState,
   AdminPageHeader,
-  AdminRowActions,
-  AdminStatusBadge,
   AdminTable,
   type AdminColumn,
 } from "@/components/admin";
 import { Badge, Button, Card } from "@/components";
-import { getAdminFormationGuides } from "@/lib/admin";
+import { ContentStatusBadge } from "@/components/admin/content-editor";
+import { IconEdit, IconEye } from "@/components/icons";
+import {
+  listFormationsOverview,
+  type FormationOverviewRow,
+} from "@/lib/db/repositories/formations.repo";
 import { formatDate } from "@/lib/labels";
-import type { FormationGuide } from "@/content/types";
 
 export const metadata: Metadata = {
   title: "Formations",
 };
 
-const columns: AdminColumn<FormationGuide>[] = [
+export const dynamic = "force-dynamic";
+
+const columns: AdminColumn<FormationOverviewRow>[] = [
   {
     header: "Guide",
     render: (formation) => (
@@ -30,7 +33,7 @@ const columns: AdminColumn<FormationGuide>[] = [
   {
     header: "Formation",
     render: (formation) => (
-      <Badge variant="electric">{formation.formation}</Badge>
+      <Badge variant="neutral">{formation.formation}</Badge>
     ),
     className: "whitespace-nowrap",
   },
@@ -39,12 +42,11 @@ const columns: AdminColumn<FormationGuide>[] = [
     render: (formation) => (
       <span className="text-secondary">{formation.playstyle}</span>
     ),
+    className: "whitespace-nowrap",
   },
   {
     header: "Status",
-    render: (formation) => (
-      <AdminStatusBadge status={formation.publishedStatus} />
-    ),
+    render: (formation) => <ContentStatusBadge status={formation.status} />,
     className: "whitespace-nowrap",
   },
   {
@@ -59,10 +61,26 @@ const columns: AdminColumn<FormationGuide>[] = [
   {
     header: "Actions",
     render: (formation) => (
-      <AdminRowActions
-        viewHref={`/formations/${formation.slug}`}
-        status={formation.publishedStatus}
-      />
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/formations/${formation.slug}`}
+        >
+          <IconEye className="h-3.5 w-3.5" />
+          View
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-8 gap-1.5 px-2.5 text-xs"
+          href={`/admin/formations/${formation.id}/edit`}
+        >
+          <IconEdit className="h-3.5 w-3.5" />
+          Edit
+        </Button>
+      </div>
     ),
     className: "whitespace-nowrap",
     headerClassName: "text-right",
@@ -70,22 +88,23 @@ const columns: AdminColumn<FormationGuide>[] = [
 ];
 
 export default async function AdminFormationsPage() {
-  const formations = await getAdminFormationGuides();
+  const formations = await listFormationsOverview();
 
   return (
     <>
       <AdminPageHeader
         eyebrow="Formations"
         title="Formation guide management"
-        description="Formation guides with tactical instructions and player roles. Editing, publishing and deleting become available in a later phase."
-        actions={<Button disabled>New formation guide</Button>}
+        description="Formation guides combine a shape, playstyle and key player roles. Drafts stay hidden until you publish them."
+        actions={<Button href="/admin/formations/new">New formation</Button>}
       />
 
       <div className="mt-6">
         {formations.length === 0 ? (
           <AdminEmptyState
-            title="No formation guides yet"
-            description="Formation guides created here will appear in this list."
+            title="No formations yet"
+            description="Create the first formation guide — it will appear here as a draft."
+            action={<Button href="/admin/formations/new">New formation</Button>}
           />
         ) : (
           <Card padded={false}>
@@ -97,8 +116,6 @@ export default async function AdminFormationsPage() {
           </Card>
         )}
       </div>
-
-      <AdminCapabilities noun="formation guides" />
     </>
   );
 }
