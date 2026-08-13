@@ -21,11 +21,11 @@ export default async function CoachingPage() {
           <PageHeader
             eyebrow="Coaching"
             title="Learn from experienced eFootball coaches."
-            description="Coaching profiles are public. Request a booking directly from a coach's profile — sessions and payments arrive in a later phase."
+            description="Coaching profiles are public. Request a coaching session directly from a coach's profile — scheduling and payment are arranged directly with the coach."
           />
           <div className="mt-6 flex flex-wrap gap-2">
             <Badge variant="neutral">Public profiles only</Badge>
-            <Badge variant="neutral">Booking coming later</Badge>
+            <Badge variant="neutral">Book a session</Badge>
           </div>
         </Container>
       </Section>

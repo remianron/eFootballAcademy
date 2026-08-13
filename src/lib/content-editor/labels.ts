@@ -6,6 +6,7 @@ import type {
   FeaturedContentType,
   FeaturedPlacement,
   ResearchStatus,
+  SessionStatus,
   TutorialCategory,
 } from "@/generated/prisma/client";
 
@@ -95,3 +96,13 @@ export const CONTACT_METHOD_LABELS: Record<ContactMethod, string> = {
   EMAIL: "Email",
   PHONE: "Phone",
 };
+
+export const SESSION_STATUS_LABELS: Record<SessionStatus, string> = {
+  CONFIRMED: "Confirmed",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
+
+export const SESSION_STATUS_OPTIONS = Object.entries(
+  SESSION_STATUS_LABELS
+).map(([value, label]) => ({ value, label }));

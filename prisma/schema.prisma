@@ -102,6 +102,12 @@ enum BookingStatus {
   CLOSED
 }
 
+enum SessionStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
 enum ContactMethod {
   EMAIL
   PHONE
@@ -379,6 +385,7 @@ model Coach {
 
   socialLinks CoachSocialLink[]
   bookings    BookingRequest[]
+  sessions    Session[]
 }
 
 model CoachSocialLink {
@@ -449,6 +456,37 @@ model BookingRequest {
   contactMethod ContactMethod?
   message       String        @db.Text
   status        BookingStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session Session?
+
+  @@index([coachId, status])
+}
+
+// ── Coaching sessions (admin-managed) ──────────────────────────────
+// A booking request turns into exactly one coaching session (1:0..1 —
+// enforced by the unique bookingRequestId). The website only manages
+// scheduling and session status; payment is arranged privately between
+// the coach and the player, never through the website.
+
+model Session {
+  id               String         @id @default(cuid())
+  bookingRequestId String         @unique
+  bookingRequest   BookingRequest @relation(fields: [bookingRequestId], references: [id], onDelete: Cascade)
+  coachId          String
+  coach            Coach          @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  scheduledAt     DateTime
+  durationMinutes Int
+  status          SessionStatus @default(CONFIRMED)
+
+  // Informational only — never part of any payment workflow. The coach
+  // and player negotiate payment privately.
+  priceAmount Decimal? @db.Decimal(10, 2)
+  currency    String?  @db.VarChar(3)
+  notes       String?  @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -6,6 +6,7 @@ import {
   hasBookingErrors,
   validateBookingInput,
 } from "@/lib/booking/validation";
+import { getSessionByBookingId } from "@/lib/db/repositories/sessions.repo";
 
 export interface BookingOverviewRow {
   id: string;
@@ -72,6 +73,8 @@ export async function getBookingById(id: string): Promise<BookingDto | null> {
   });
   if (!row) return null;
 
+  const session = await getSessionByBookingId(row.id);
+
   return {
     id: row.id,
     coachId: row.coachId,
@@ -83,6 +86,7 @@ export async function getBookingById(id: string): Promise<BookingDto | null> {
     contactMethod: row.contactMethod,
     message: row.message,
     status: row.status,
+    session,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

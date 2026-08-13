@@ -85,6 +85,20 @@ export function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
+export function formatDateTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(iso));
+}
+
+export function formatDuration(minutes: number): string {
+  return `${minutes} minutes`;
+}
+
 export function initials(name: string): string {
   return name
     .split(/\s+/)

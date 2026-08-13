@@ -28,8 +28,8 @@ export function BookingRequestForm({ coachSlug }: { coachSlug: string }) {
           Booking request received
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
-          Your booking request was received. The coaching team will get back
-          to you as soon as possible.
+          Your coaching request has been received. The coach will review
+          your request and arrange the session with you.
         </p>
         <Button
           variant="outline"

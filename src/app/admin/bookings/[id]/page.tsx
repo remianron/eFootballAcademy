@@ -3,9 +3,12 @@ import { notFound } from "next/navigation";
 import { AdminPageHeader } from "@/components/admin";
 import { Badge, Button, Card } from "@/components";
 import { BookingAdminPanel } from "@/components/admin/bookings/booking-admin-panel";
+import { SessionActionsPanel } from "@/components/admin/bookings/session-actions-panel";
+import { SessionCreateForm } from "@/components/admin/bookings/session-create-form";
+import { SessionStatusBadge } from "@/components/admin/bookings/session-status-badge";
 import { getBookingById } from "@/lib/db/repositories/bookings.repo";
 import { CONTACT_METHOD_LABELS } from "@/lib/content-editor/labels";
-import { formatDate } from "@/lib/labels";
+import { formatDate, formatDateTime, formatDuration } from "@/lib/labels";
 
 export const metadata: Metadata = {
   title: "Booking request",
@@ -117,6 +120,91 @@ export default async function AdminBookingDetailPage({
             {booking.message}
           </p>
         </div>
+      </Card>
+
+      <Card className="mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-display-md font-semibold text-foreground">
+              Coaching session
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              Schedule the session with the coach. Payment is arranged
+              directly between the coach and player.
+            </p>
+          </div>
+          {booking.session && (
+            <SessionStatusBadge status={booking.session.status} />
+          )}
+        </div>
+
+        {!booking.session ? (
+          <SessionCreateForm bookingId={booking.id} />
+        ) : (
+          <>
+            <dl className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+              <div>
+                <dt className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  Scheduled
+                </dt>
+                <dd className="mt-1.5 text-sm font-medium text-foreground tabular-nums">
+                  {formatDateTime(booking.session.scheduledAt)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  Duration
+                </dt>
+                <dd className="mt-1.5 text-sm text-secondary">
+                  {formatDuration(booking.session.durationMinutes)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  Agreed price
+                </dt>
+                <dd className="mt-1.5 text-sm text-secondary tabular-nums">
+                  {booking.session.priceAmount && booking.session.currency ? (
+                    `${booking.session.priceAmount} ${booking.session.currency}`
+                  ) : (
+                    <span className="text-muted">Not specified</span>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  Created
+                </dt>
+                <dd className="mt-1.5 text-sm text-secondary tabular-nums">
+                  {formatDate(booking.session.createdAt)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  Updated
+                </dt>
+                <dd className="mt-1.5 text-sm text-secondary tabular-nums">
+                  {formatDate(booking.session.updatedAt)}
+                </dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-xs font-semibold tracking-wide text-muted uppercase">
+                  Notes
+                </dt>
+                <dd className="mt-1.5 text-sm text-secondary whitespace-pre-wrap">
+                  {booking.session.notes ?? (
+                    <span className="text-muted">No notes</span>
+                  )}
+                </dd>
+              </div>
+            </dl>
+
+            <SessionActionsPanel
+              bookingId={booking.id}
+              session={booking.session}
+            />
+          </>
+        )}
       </Card>
 
       <BookingAdminPanel bookingId={booking.id} status={booking.status} />

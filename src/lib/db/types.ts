@@ -9,6 +9,7 @@ import type {
   MediaOwnerType,
   PublishStatus,
   ResearchStatus,
+  SessionStatus,
   StatCategory,
   TutorialCategory,
 } from "@/generated/prisma/client";
@@ -251,6 +252,25 @@ export interface BookingDto {
   contactMethod: ContactMethod | null;
   message: string;
   status: BookingStatus;
+  session: SessionDto | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SessionDto {
+  id: string;
+  bookingRequestId: string;
+  coachId: string;
+  coachName: string;
+  coachSlug: string;
+  requesterName: string;
+  requesterEmail: string;
+  scheduledAt: string; // ISO 8601
+  durationMinutes: number;
+  status: SessionStatus;
+  priceAmount: string | null; // decimal string ("25.50") — informational only
+  currency: string | null;
+  notes: string | null;
   createdAt: string;
   updatedAt: string;
 }
