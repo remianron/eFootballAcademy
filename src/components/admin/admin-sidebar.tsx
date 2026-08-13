@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { IconClose, IconMenu } from "@/components/icons";
+import { logoutAction } from "@/app/admin/login/actions";
 import {
   ADMIN_NAV_ITEMS,
   isAdminNavActive,
@@ -95,13 +97,23 @@ export function AdminSidebar() {
         <div className="border-t border-border p-3">
           <div className="rounded-control bg-card px-3 py-2.5">
             <p className="text-[0.6875rem] font-semibold tracking-widest text-gold uppercase">
-              Development preview
+              Admin session
             </p>
             <p className="mt-1 text-xs leading-relaxed text-muted">
-              No authentication yet. This area establishes the content
-              management foundation.
+              Signed in to the content management area. Content lives in
+              the database.
             </p>
           </div>
+          <form action={logoutAction} className="mt-2">
+            <Button
+              type="submit"
+              variant="ghost"
+              size="sm"
+              className="w-full"
+            >
+              Sign out
+            </Button>
+          </form>
         </div>
       </aside>
     </>

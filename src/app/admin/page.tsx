@@ -6,19 +6,27 @@ import {
   AdminStatCard,
 } from "@/components/admin";
 import { Badge, Card } from "@/components";
+import type { ContentType } from "@/content/types";
 import {
-  CONTENT_TYPE_LABELS,
-  CONTENT_TYPE_PLURAL_LABELS,
+  FEATURED_CONTENT_TYPE_LABELS,
   FEATURED_PLACEMENT_LABELS,
-} from "@/lib/labels";
-import { getAdminFeatured, getContentOverview } from "@/lib/admin";
+} from "@/lib/content-editor/labels";
+import { listBuildsOverview } from "@/lib/db/repositories/builds.repo";
+import { listCoachesOverview } from "@/lib/db/repositories/coaches.repo";
+import { listDiscoveriesOverview } from "@/lib/db/repositories/discoveries.repo";
+import { listFeaturedEntries } from "@/lib/db/repositories/featured.repo";
+import { listFormationsOverview } from "@/lib/db/repositories/formations.repo";
+import { listTutorialsOverview } from "@/lib/db/repositories/tutorials.repo";
+import { CONTENT_TYPE_PLURAL_LABELS } from "@/lib/labels";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-const sectionHref: Record<string, string> = {
+export const dynamic = "force-dynamic";
+
+const sectionHref: Record<ContentType, string> = {
   build: "/admin/builds",
   tutorial: "/admin/tutorials",
   "formation-guide": "/admin/formations",
@@ -26,20 +34,52 @@ const sectionHref: Record<string, string> = {
   coach: "/admin/coaches",
 };
 
-export default async function AdminDashboardPage() {
-  const [overview, featured] = await Promise.all([
-    getContentOverview(),
-    getAdminFeatured(),
-  ]);
+interface OverviewEntry {
+  type: ContentType;
+  total: number;
+  published: number;
+  drafts: number;
+}
 
-  const activeFeatured = featured.filter((entry) => entry.item.active).length;
+function summarize(
+  type: ContentType,
+  rows: { status: string }[]
+): OverviewEntry {
+  return {
+    type,
+    total: rows.length,
+    published: rows.filter((row) => row.status === "PUBLISHED").length,
+    drafts: rows.filter((row) => row.status === "DRAFT").length,
+  };
+}
+
+export default async function AdminDashboardPage() {
+  const [builds, tutorials, formations, discoveries, coaches, featured] =
+    await Promise.all([
+      listBuildsOverview(),
+      listTutorialsOverview(),
+      listFormationsOverview(),
+      listDiscoveriesOverview(),
+      listCoachesOverview(),
+      listFeaturedEntries(),
+    ]);
+
+  const overview: OverviewEntry[] = [
+    summarize("build", builds),
+    summarize("tutorial", tutorials),
+    summarize("formation-guide", formations),
+    summarize("discovery", discoveries),
+    summarize("coach", coaches),
+  ];
+
+  const activeFeatured = featured.filter((entry) => entry.active).length;
 
   return (
     <div className="space-y-10">
       <AdminPageHeader
         eyebrow="Admin / Dashboard"
         title="Content overview"
-        description="Manage the content that powers the public eFootball Academy site. This is a development preview — authentication and persistence arrive in later phases."
+        description="Manage the content that powers the public eFootball Academy site. Content is stored in the database and published here after sign-in."
       />
 
       <section aria-labelledby="content-counts-heading">
@@ -52,17 +92,13 @@ export default async function AdminDashboardPage() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {overview.map((entry) => {
             const TypeIcon = ADMIN_CONTENT_TYPE_ICONS[entry.type];
-            const hint =
-              entry.type === "coach"
-                ? `${entry.published} active · ${entry.drafts} hidden`
-                : `${entry.published} published · ${entry.drafts} draft`;
             return (
               <AdminStatCard
                 key={entry.type}
                 href={sectionHref[entry.type]}
                 label={CONTENT_TYPE_PLURAL_LABELS[entry.type]}
                 value={entry.total}
-                hint={hint}
+                hint={`${entry.published} published · ${entry.drafts} draft`}
                 icon={<TypeIcon className="h-4 w-4" />}
               />
             );
@@ -80,8 +116,8 @@ export default async function AdminDashboardPage() {
               Featured content
             </h2>
             <p className="mt-1 text-sm text-muted">
-              Manual homepage placement. Resolved through the same content
-              abstraction the public site uses.
+              Manual homepage placement. Resolved through the same repositories
+              the public site uses.
             </p>
           </div>
           <Badge variant="neutral">
@@ -95,27 +131,27 @@ export default async function AdminDashboardPage() {
               No featured items configured yet.
             </p>
           ) : (
-            featured.map(({ item, title }) => (
+            featured.map((entry) => (
               <AdminContentCard
-                key={`${item.type}-${item.contentId}`}
+                key={entry.id}
                 label={
                   <Badge variant="outline">
-                    {CONTENT_TYPE_LABELS[item.type]}
+                    {FEATURED_CONTENT_TYPE_LABELS[entry.contentType]}
                   </Badge>
                 }
-                title={title}
-                meta={`${item.contentId} · order ${item.order}`}
+                title={entry.content?.title ?? "Missing content"}
+                meta={`${entry.contentId} · order ${entry.order}`}
                 status={
                   <div className="flex items-center gap-2">
                     <Badge variant="neutral">
-                      {FEATURED_PLACEMENT_LABELS[item.placement]}
+                      {FEATURED_PLACEMENT_LABELS[entry.placement]}
                     </Badge>
-                    <Badge variant={item.active ? "success" : "neutral"}>
-                      {item.active ? "Active" : "Inactive"}
+                    <Badge variant={entry.active ? "success" : "neutral"}>
+                      {entry.active ? "Active" : "Inactive"}
                     </Badge>
                   </div>
                 }
-                className={cn(!item.active && "opacity-60")}
+                className={cn(!entry.active && "opacity-60")}
               />
             ))
           )}
@@ -131,20 +167,14 @@ export default async function AdminDashboardPage() {
             Content source
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-            Content is defined in{" "}
+            All content — builds, tutorials, formation guides, discoveries,
+            coaches and featured placements — lives in the MySQL/MariaDB
+            database and is accessed through the Prisma repositories in{" "}
             <code className="rounded-control bg-card-secondary px-1.5 py-0.5 text-xs text-electric">
-              src/content/
-            </code>{" "}
-            and served to the public site and this admin area through the{" "}
-            <code className="rounded-control bg-card-secondary px-1.5 py-0.5 text-xs text-electric">
-              src/lib/content.ts
-            </code>{" "}
-            and{" "}
-            <code className="rounded-control bg-card-secondary px-1.5 py-0.5 text-xs text-electric">
-              src/lib/admin.ts
-            </code>{" "}
-            access layers. A future API can replace the data source without
-            changing any page component.
+              src/lib/db/repositories/
+            </code>
+            . The public site only reads published content; this admin area
+            reads every row through the same repositories.
           </p>
         </Card>
       </section>

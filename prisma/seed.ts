@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import type { StatCategory } from "@/generated/prisma/client";
+import { hashPassword } from "@/lib/auth/password";
 
 /**
  * Canonical eFootball Attribute catalog — Phase 5B seed.
@@ -10,6 +11,10 @@ import type { StatCategory } from "@/generated/prisma/client";
  * but preserves the `active` flag (so a retired attribute stays retired).
  * New eFootball attributes are added by appending rows here (or via the
  * future admin panel) — no schema change required.
+ *
+ * Also seeds the initial OWNER admin account (Phase 6 auth) from
+ * ADMIN_EMAIL / ADMIN_PASSWORD when both are set. Existing accounts are
+ * never overwritten, so later seed runs cannot reset the password.
  */
 
 type SeedAttribute = {
@@ -85,6 +90,32 @@ async function main() {
   console.log(
     `Attribute catalog seeded: ${inserted} created, ${updated} updated (${attributes.length} total).`
   );
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminEmail && adminPassword) {
+    const email = adminEmail.trim().toLowerCase();
+    const existing = await prisma.adminUser.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (existing) {
+      console.log(
+        `Admin account "${email}" already exists — password left untouched.`
+      );
+    } else {
+      const passwordHash = await hashPassword(adminPassword);
+      await prisma.adminUser.create({
+        data: { email, displayName: email, passwordHash },
+      });
+      console.log(`Admin account "${email}" created.`);
+    }
+  } else {
+    console.log(
+      "Admin account skipped — set ADMIN_EMAIL and ADMIN_PASSWORD to seed one."
+    );
+  }
+
   await prisma.$disconnect();
 }
 

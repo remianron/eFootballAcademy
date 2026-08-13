@@ -43,7 +43,10 @@ type TutorialEditorFormProps = {
 
 type SaveAction = (
   input: TutorialEditorInput
-) => Promise<{ ok: true } | { ok: false; errors: Record<string, string> }>;
+) => Promise<
+  | { ok: true }
+  | { ok: false; errors?: Record<string, string>; error?: string }
+>;
 
 function toInput(
   form: TutorialEditorFormState,

@@ -8,56 +8,85 @@ import {
   setFormationStatus,
 } from "@/lib/db/repositories/formations.editor.repo";
 import type { FormationEditorInput } from "@/lib/formation-editor/types";
+import {
+  dataSourceFailure,
+  isDataSourceUnavailableError,
+} from "@/lib/db/errors";
 
 export type FormationSaveResult =
   | { ok: true }
-  | { ok: false; errors: Record<string, string> };
+  | { ok: false; errors?: Record<string, string>; error?: string };
 
 export async function createFormationAction(
   input: FormationEditorInput
 ): Promise<FormationSaveResult> {
-  const result = await saveFormation(input);
-  if (!result.ok) return result;
-  revalidatePath("/admin/formations");
-  redirect(`/admin/formations/${result.formation.id}/edit`);
+  try {
+    const result = await saveFormation(input);
+    if (!result.ok) return result;
+    revalidatePath("/admin/formations");
+    redirect(`/admin/formations/${result.formation.id}/edit`);
+  } catch (error) {
+    if (isDataSourceUnavailableError(error)) return dataSourceFailure();
+    throw error;
+  }
 }
 
 export async function updateFormationAction(
   formationGuideId: string,
   input: FormationEditorInput
 ): Promise<FormationSaveResult> {
-  const result = await saveFormation(input, { formationGuideId });
-  if (!result.ok) return result;
-  revalidatePath("/admin/formations");
-  revalidatePath(`/admin/formations/${formationGuideId}/edit`);
-  redirect(`/admin/formations/${formationGuideId}/edit`);
+  try {
+    const result = await saveFormation(input, { formationGuideId });
+    if (!result.ok) return result;
+    revalidatePath("/admin/formations");
+    revalidatePath(`/admin/formations/${formationGuideId}/edit`);
+    redirect(`/admin/formations/${formationGuideId}/edit`);
+  } catch (error) {
+    if (isDataSourceUnavailableError(error)) return dataSourceFailure();
+    throw error;
+  }
 }
 
 export async function archiveFormationAction(
   formationGuideId: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const result = await setFormationStatus(formationGuideId, "ARCHIVED");
-  if (!result.ok) return result;
-  revalidatePath("/admin/formations");
-  revalidatePath(`/admin/formations/${formationGuideId}/edit`);
-  redirect(`/admin/formations/${formationGuideId}/edit`);
+  try {
+    const result = await setFormationStatus(formationGuideId, "ARCHIVED");
+    if (!result.ok) return result;
+    revalidatePath("/admin/formations");
+    revalidatePath(`/admin/formations/${formationGuideId}/edit`);
+    redirect(`/admin/formations/${formationGuideId}/edit`);
+  } catch (error) {
+    if (isDataSourceUnavailableError(error)) return dataSourceFailure();
+    throw error;
+  }
 }
 
 export async function restoreFormationAction(
   formationGuideId: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const result = await setFormationStatus(formationGuideId, "DRAFT");
-  if (!result.ok) return result;
-  revalidatePath("/admin/formations");
-  revalidatePath(`/admin/formations/${formationGuideId}/edit`);
-  redirect(`/admin/formations/${formationGuideId}/edit`);
+  try {
+    const result = await setFormationStatus(formationGuideId, "DRAFT");
+    if (!result.ok) return result;
+    revalidatePath("/admin/formations");
+    revalidatePath(`/admin/formations/${formationGuideId}/edit`);
+    redirect(`/admin/formations/${formationGuideId}/edit`);
+  } catch (error) {
+    if (isDataSourceUnavailableError(error)) return dataSourceFailure();
+    throw error;
+  }
 }
 
 export async function deleteFormationAction(
   formationGuideId: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const result = await deleteDraftFormation(formationGuideId);
-  if (!result.ok) return result;
-  revalidatePath("/admin/formations");
-  redirect("/admin/formations");
+  try {
+    const result = await deleteDraftFormation(formationGuideId);
+    if (!result.ok) return result;
+    revalidatePath("/admin/formations");
+    redirect("/admin/formations");
+  } catch (error) {
+    if (isDataSourceUnavailableError(error)) return dataSourceFailure();
+    throw error;
+  }
 }
