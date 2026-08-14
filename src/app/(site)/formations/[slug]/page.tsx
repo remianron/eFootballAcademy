@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge, Card, Container, Section } from "@/components";
-import { IconTarget } from "@/components/icons";
+import { ContentMediaList } from "@/components/content/content-media";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
+import { IconTarget } from "@/components/icons";
 import { getPublishedFormationBySlug } from "@/lib/public";
 
 export const dynamic = "force-dynamic";
@@ -47,10 +48,14 @@ export default async function FormationPage({
 
       <Section>
         <Container>
-          <MediaPlaceholder
-            label={`${formation.formation} formation diagram`}
-            className="aspect-[16/9] w-full lg:aspect-[21/9]"
-          />
+          {formation.media && formation.media.length > 0 ? (
+            <ContentMediaList media={formation.media} />
+          ) : (
+            <MediaPlaceholder
+              label={`${formation.formation} formation diagram`}
+              className="aspect-[16/9] w-full lg:aspect-[21/9]"
+            />
+          )}
 
           <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-12">
             <div>

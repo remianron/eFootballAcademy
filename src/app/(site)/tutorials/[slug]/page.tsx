@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge, Container, Divider, Section } from "@/components";
-import { IconLightbulb } from "@/components/icons";
+import { ContentMediaList } from "@/components/content/content-media";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
+import { IconLightbulb } from "@/components/icons";
 import {
   DIFFICULTY_LABELS,
   formatDate,
@@ -70,10 +71,17 @@ export default async function TutorialPage({
       <Section>
         <Container>
           <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(280px,1fr)] lg:gap-12">
-            <MediaPlaceholder
-              label={`${tutorial.category} tutorial media`}
-              className="aspect-[16/10] w-full min-w-0 lg:sticky lg:top-24"
-            />
+            {tutorial.media && tutorial.media.length > 0 ? (
+              <ContentMediaList
+                media={tutorial.media}
+                className="min-w-0 lg:sticky lg:top-24"
+              />
+            ) : (
+              <MediaPlaceholder
+                label={`${tutorial.category} tutorial media`}
+                className="aspect-[16/10] w-full min-w-0 lg:sticky lg:top-24"
+              />
+            )}
 
             <div className="min-w-0">
               <div className="space-y-5">

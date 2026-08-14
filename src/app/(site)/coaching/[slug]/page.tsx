@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Button, Container, Section } from "@/components";
+import { ContentMediaList } from "@/components/content/content-media";
 import { IconExternalLink } from "@/components/icons";
 import { initials } from "@/lib/labels";
 import { getPublishedCoachBySlug } from "@/lib/public";
@@ -128,6 +129,22 @@ export default async function CoachPage({
           </div>
         </Container>
       </Section>
+
+      {coach.media && coach.media.length > 0 && (
+        <Section>
+          <Container>
+            <div>
+              <p className="text-eyebrow font-display text-electric uppercase">
+                Coach Media
+              </p>
+              <h2 className="mt-2 font-display text-display-lg font-semibold text-foreground">
+                See the coach in action.
+              </h2>
+            </div>
+            <ContentMediaList media={coach.media} className="mt-6" />
+          </Container>
+        </Section>
+      )}
     </>
   );
 }

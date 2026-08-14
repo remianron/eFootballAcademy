@@ -14,13 +14,16 @@ interface BaseContent {
   updatedAt: string;
 }
 
-export type BuildMediaType = "video" | "gif" | "image";
+export type ContentMediaType = "video" | "gif" | "image";
 
-export interface BuildMedia {
-  type: BuildMediaType;
-  url: string;
+export interface ContentMedia {
+  type: ContentMediaType;
+  url?: string;
+  youtubeVideoId?: string;
   thumbnail?: string;
   caption?: string;
+  aspectRatio?: string;
+  alt?: string;
 }
 
 export type FeedbackPlatform = "YouTube" | "Facebook" | "Instagram" | "TikTok";
@@ -49,7 +52,7 @@ export interface PlayerBuild extends BaseContent {
   recommendedFor: string[];
   avoidFor: string[];
   skills?: string[];
-  media?: BuildMedia[];
+  media?: ContentMedia[];
   communityFeedback?: CommunityFeedback[];
 }
 
@@ -73,6 +76,7 @@ export interface Tutorial extends BaseContent {
   difficulty: Difficulty;
   steps?: string[];
   tips?: string[];
+  media?: ContentMedia[];
 }
 
 export interface PlayerRole {
@@ -90,6 +94,7 @@ export interface FormationGuide extends BaseContent {
   strengths: string[];
   weaknesses: string[];
   recommendedUsage: string;
+  media?: ContentMedia[];
 }
 
 export type DiscoveryCategory =
@@ -112,6 +117,7 @@ export interface Discovery extends BaseContent {
   sources?: string[];
   publishedAt?: string;
   researchStatus?: ResearchStatus;
+  media?: ContentMedia[];
 }
 
 export interface SocialLink {
@@ -130,6 +136,7 @@ export interface Coach {
   coachingDescription: string;
   status: "active" | "hidden";
   booking?: { enabled: boolean };
+  media?: ContentMedia[];
 }
 
 export type ContentType =

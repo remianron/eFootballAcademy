@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Badge, Container, Divider, Section } from "@/components";
 import { OvrRing, StatBars } from "@/components/content/attribute-bars";
 import { BuildSwitcher } from "@/components/content/build-switcher";
-import { BuildMediaList } from "@/components/content/build-media";
+import { ContentMediaList } from "@/components/content/content-media";
 import { CommunityFeedbackList } from "@/components/content/community-feedback";
 import { cn } from "@/lib/cn";
 import {
@@ -90,7 +90,7 @@ export default async function BuildPage({
             {build.media && build.media.length > 0 && (
               <section>
                 <SectionLabel label="Build Media" title="See the build in action." />
-                <BuildMediaList media={build.media} />
+                <ContentMediaList media={build.media} />
               </section>
             )}
 

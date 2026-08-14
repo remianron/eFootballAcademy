@@ -7,10 +7,9 @@ import type {
   TutorialDto,
 } from "@/lib/db/types";
 import type {
-  BuildMedia,
-  BuildMediaType,
   Coach,
   CommunityFeedback,
+  ContentMedia,
   Discovery,
   FormationGuide,
   Media,
@@ -80,27 +79,31 @@ const FEEDBACK_PLATFORM_MAP = {
   TIKTOK: "TikTok",
 } as const;
 
-export function toPublicBuildMedia(media: MediaDto[]): BuildMedia[] {
-  return media.flatMap((item): BuildMedia[] => {
+export function toPublicContentMedia(media: MediaDto[]): ContentMedia[] {
+  return media.flatMap((item): ContentMedia[] => {
     if (item.kind === "YOUTUBE_VIDEO") {
       if (!item.youtubeVideoId) return [];
       return [
         {
           type: "video",
-          url: youtubeUrl(item.youtubeVideoId),
+          youtubeVideoId: item.youtubeVideoId,
           thumbnail: item.thumbnailUrl ?? undefined,
           caption: item.caption ?? undefined,
+          aspectRatio: item.aspectRatio || undefined,
+          alt: item.alt ?? undefined,
         },
       ];
     }
     if (!item.url) return [];
-    const type: BuildMediaType = item.kind === "GIF" ? "gif" : "image";
+    const type: ContentMedia["type"] = item.kind === "GIF" ? "gif" : "image";
     return [
       {
         type,
         url: item.url,
         thumbnail: item.thumbnailUrl ?? undefined,
         caption: item.caption ?? undefined,
+        aspectRatio: item.aspectRatio || undefined,
+        alt: item.alt ?? undefined,
       },
     ];
   });
@@ -119,7 +122,7 @@ function toPublicFeedback(feedback: BuildDetailDto["feedback"]): CommunityFeedba
 }
 
 export function toPublicBuild(build: BuildDetailDto): PlayerBuild {
-  const media = toPublicBuildMedia(build.media);
+  const media = toPublicContentMedia(build.media);
   const feedback = toPublicFeedback(build.feedback);
   return {
     id: build.id,
@@ -188,6 +191,7 @@ export function toPublicTutorial(tutorial: TutorialDto): Tutorial {
     tips: tutorial.tips,
     thumbnail,
     videoUrl: video?.youtubeVideoId ? youtubeUrl(video.youtubeVideoId) : undefined,
+    media: toPublicContentMedia(tutorial.media),
     publishedStatus: PUBLISHED_STATUS_MAP[tutorial.status],
     createdAt: iso(tutorial.createdAt),
     updatedAt: iso(tutorial.updatedAt),
@@ -246,6 +250,7 @@ export function toPublicFormation(formation: FormationDto): FormationGuide {
     strengths: formation.strengths,
     weaknesses: formation.weaknesses,
     recommendedUsage: formation.recommendedUsage,
+    media: toPublicContentMedia(formation.media),
     publishedStatus: PUBLISHED_STATUS_MAP[formation.status],
     createdAt: iso(formation.createdAt),
     updatedAt: iso(formation.updatedAt),
@@ -281,6 +286,7 @@ export function toPublicDiscovery(discovery: DiscoveryDto): Discovery {
     author: discovery.author,
     sources: discovery.sources.length > 0 ? discovery.sources : undefined,
     thumbnail: firstImage(discovery.media),
+    media: toPublicContentMedia(discovery.media),
     publishedAt: discovery.publishedAt ? iso(discovery.publishedAt) : undefined,
     researchStatus: RESEARCH_STATUS_MAP[discovery.researchStatus],
     publishedStatus: PUBLISHED_STATUS_MAP[discovery.status],
@@ -304,5 +310,6 @@ export function toPublicCoach(coach: CoachDto): Coach {
     coachingDescription: coach.coachingDescription,
     status: coach.status === "PUBLISHED" ? "active" : "hidden",
     booking: { enabled: coach.bookingEnabled },
+    media: toPublicContentMedia(coach.media),
   };
 }
