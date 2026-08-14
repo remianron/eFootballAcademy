@@ -9,6 +9,7 @@ import {
   type EditorErrors,
 } from "@/lib/content-editor/validation";
 import { validateContentMedia } from "@/lib/content-editor/media-input";
+import { validateContentBlocks } from "@/lib/content-blocks/validation";
 
 const TUTORIAL_CATEGORIES: TutorialCategory[] = [
   "FREE_KICKS",
@@ -68,6 +69,7 @@ export function validateTutorialEditorInput(
   });
 
   validateContentMedia(input.media, errors, "media");
+  validateContentBlocks(input.blocks, errors, "blocks");
 
   return errors;
 }

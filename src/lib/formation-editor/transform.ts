@@ -1,5 +1,6 @@
 import type { FormationDto } from "@/lib/db/types";
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
+import { contentBlockItemsFromDto } from "@/lib/content-blocks/transform";
 import type { FormationEditorFormState } from "@/lib/formation-editor/types";
 
 export function emptyFormationFormState(): FormationEditorFormState {
@@ -16,6 +17,7 @@ export function emptyFormationFormState(): FormationEditorFormState {
     weaknesses: [],
     roles: [],
     media: [],
+    blocks: [],
   };
 }
 
@@ -49,5 +51,6 @@ export function formationFormStateFromDto(
         aspectRatio: item.aspectRatio,
       })
     ),
+    blocks: contentBlockItemsFromDto(formation.blocks),
   };
 }

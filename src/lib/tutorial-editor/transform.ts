@@ -1,5 +1,6 @@
 import type { TutorialDto } from "@/lib/db/types";
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
+import { contentBlockItemsFromDto } from "@/lib/content-blocks/transform";
 import type { TutorialEditorFormState } from "@/lib/tutorial-editor/types";
 
 export function emptyTutorialFormState(): TutorialEditorFormState {
@@ -14,6 +15,7 @@ export function emptyTutorialFormState(): TutorialEditorFormState {
     steps: [],
     tips: [],
     media: [],
+    blocks: [],
   };
 }
 
@@ -42,5 +44,6 @@ export function tutorialFormStateFromDto(
         aspectRatio: item.aspectRatio,
       })
     ),
+    blocks: contentBlockItemsFromDto(tutorial.blocks),
   };
 }

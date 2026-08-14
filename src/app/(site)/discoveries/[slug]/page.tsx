@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge, Card, Container, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
+import { ContentBlockList } from "@/components/content/content-blocks";
 import { IconFlask } from "@/components/icons";
 import {
   DISCOVERY_CATEGORY_LABELS,
@@ -122,6 +123,8 @@ export default async function DiscoveryPage({
                   <ContentMediaList media={discovery.media} />
                 </div>
               )}
+
+              <ContentBlockList blocks={discovery.blocks} className="pt-4" />
             </div>
           </div>
         </Container>

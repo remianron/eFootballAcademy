@@ -9,6 +9,9 @@ import {
   normalizeContentMedia,
   type NormalizedContentMedia,
 } from "@/lib/content-editor/media-input";
+import { normalizeContentBlocks } from "@/lib/content-blocks/validation";
+import type { NormalizedContentBlock } from "@/lib/content-blocks/types";
+import { syncContentBlocks } from "@/lib/db/repositories/content-blocks.repo";
 import { EditorFieldError } from "@/lib/content-editor/errors";
 
 export type SaveCoachResult =
@@ -26,6 +29,7 @@ type NormalizedCoach = {
   bookingEnabled: boolean;
   socialLinks: { platform: string; url: string }[];
   media: NormalizedContentMedia[];
+  blocks: NormalizedContentBlock[];
   status: PublishStatus;
 };
 
@@ -42,6 +46,7 @@ function normalizeCoach(input: CoachEditorInput): NormalizedCoach {
       .map((link) => ({ platform: trim(link.platform), url: trim(link.url) }))
       .filter((link) => Boolean(link.platform) || Boolean(link.url)),
     media: normalizeContentMedia(input.media),
+    blocks: normalizeContentBlocks(input.blocks),
     status: input.status,
   };
 }
@@ -140,6 +145,7 @@ async function saveInTransaction(
 
   await syncSocialLinks(tx, coach.id, data.socialLinks);
   await syncMedia(tx, coach.id, data.media);
+  await syncContentBlocks(tx, "COACH", coach.id, data.blocks);
 
   return {
     ok: true,
@@ -194,6 +200,9 @@ export async function deleteDraftCoach(
   }
   await prisma.$transaction([
     prisma.media.deleteMany({
+      where: { ownerType: "COACH", ownerId: coachId },
+    }),
+    prisma.contentBlock.deleteMany({
       where: { ownerType: "COACH", ownerId: coachId },
     }),
     prisma.coach.delete({ where: { id: coachId } }),

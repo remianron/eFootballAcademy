@@ -1,4 +1,5 @@
 import type { BuildDetailDto } from "@/lib/db/types";
+import { contentBlockItemsFromDto } from "@/lib/content-blocks/transform";
 import type { BuildEditorFormState } from "@/lib/build-editor/types";
 
 export function emptyFormState(): BuildEditorFormState {
@@ -25,6 +26,7 @@ export function emptyFormState(): BuildEditorFormState {
     weaknesses: [],
     screenshot: { url: "", alt: "", caption: "" },
     media: [],
+    blocks: [],
   };
 }
 
@@ -79,5 +81,6 @@ export function formStateFromBuild(
       caption: item.caption ?? "",
       aspectRatio: item.aspectRatio,
     })),
+    blocks: contentBlockItemsFromDto(build.blocks),
   };
 }

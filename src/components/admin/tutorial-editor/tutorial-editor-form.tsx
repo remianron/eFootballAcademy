@@ -24,6 +24,7 @@ import {
   useEditorAction,
 } from "@/components/admin/content-editor";
 import {
+  BlockEditor,
   MediaEditor,
   SelectField,
   StringListEditor,
@@ -70,6 +71,7 @@ function toInput(
       caption: item.caption,
       aspectRatio: item.aspectRatio,
     })),
+    blocks: form.blocks,
     status,
   };
 }
@@ -246,6 +248,17 @@ export function TutorialEditorForm({
             onChange={(media) => set({ media })}
             errors={errors}
             emptyHint="No media yet. The first video is featured at the top of the tutorial."
+          />
+        </EditorSection>
+
+        <EditorSection
+          title="Article content"
+          description="Add headings, paragraphs, media (single or side-by-side), custom attributes and custom sections. Blocks render in exactly this order on the public page, after the tutorial body."
+        >
+          <BlockEditor
+            items={form.blocks}
+            onChange={(blocks) => set({ blocks })}
+            errors={errors}
           />
         </EditorSection>
       </div>

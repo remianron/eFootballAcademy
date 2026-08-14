@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Button, Container, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
+import { ContentBlockList } from "@/components/content/content-blocks";
 import { IconExternalLink } from "@/components/icons";
 import { initials } from "@/lib/labels";
 import { getPublishedCoachBySlug } from "@/lib/public";
@@ -125,6 +126,8 @@ export default async function CoachPage({
                   {coach.coachingDescription}
                 </p>
               </div>
+
+              <ContentBlockList blocks={coach.blocks} />
             </div>
           </div>
         </Container>

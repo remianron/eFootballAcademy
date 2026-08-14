@@ -79,6 +79,57 @@ export interface MediaDto {
   order: number;
 }
 
+/**
+ * Ordered editorial content blocks (flexible CMS). `data` mirrors the
+ * normalized payload stored in ContentBlock.data:
+ *   heading    -> { type, text, level: 2 | 3 }
+ *   text       -> { type, content }
+ *   media      -> { type, media: NormalizedContentMedia[] }
+ *   attributes -> { type, items: { name, value }[] }
+ *   custom     -> { type, label?, content }
+ */
+export type ContentBlockDto =
+  | ({ id: string; order: number } & NormalizedHeadingBlock)
+  | ({ id: string; order: number } & NormalizedTextBlock)
+  | ({ id: string; order: number } & NormalizedMediaBlock)
+  | ({ id: string; order: number } & NormalizedAttributesBlock)
+  | ({ id: string; order: number } & NormalizedCustomBlock);
+
+interface NormalizedHeadingBlock {
+  type: "heading";
+  text: string;
+  level: 2 | 3;
+}
+
+interface NormalizedTextBlock {
+  type: "text";
+  content: string;
+}
+
+interface NormalizedMediaBlock {
+  type: "media";
+  media: {
+    kind: MediaKind;
+    youtubeVideoId: string | null;
+    url: string | null;
+    thumbnailUrl: string | null;
+    alt: string;
+    caption: string;
+    aspectRatio: string;
+  }[];
+}
+
+interface NormalizedAttributesBlock {
+  type: "attributes";
+  items: { name: string; value: string }[];
+}
+
+interface NormalizedCustomBlock {
+  type: "custom";
+  label: string;
+  content: string;
+}
+
 export interface BuildSummaryDto {
   id: string;
   slug: string;
@@ -116,6 +167,7 @@ export interface BuildDetailDto {
   weaknesses: string[];
   feedback: FeedbackEntryDto[];
   media: MediaDto[];
+  blocks: ContentBlockDto[];
 }
 
 export interface PlayerDto {
@@ -154,6 +206,7 @@ export interface TutorialDto {
   createdAt: Date;
   updatedAt: Date;
   media: MediaDto[];
+  blocks: ContentBlockDto[];
 }
 
 export interface FormationRoleDto {
@@ -179,6 +232,7 @@ export interface FormationDto {
   createdAt: Date;
   updatedAt: Date;
   media: MediaDto[];
+  blocks: ContentBlockDto[];
 }
 
 export interface SocialLinkDto {
@@ -201,6 +255,7 @@ export interface CoachDto {
   updatedAt: Date;
   socialLinks: SocialLinkDto[];
   media: MediaDto[];
+  blocks: ContentBlockDto[];
 }
 
 export interface DiscoveryDto {
@@ -219,6 +274,7 @@ export interface DiscoveryDto {
   createdAt: Date;
   updatedAt: Date;
   media: MediaDto[];
+  blocks: ContentBlockDto[];
 }
 
 export interface FeaturedContentReferenceDto {

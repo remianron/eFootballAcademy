@@ -23,6 +23,7 @@ import {
   useEditorAction,
 } from "@/components/admin/content-editor";
 import {
+  BlockEditor,
   CheckboxField,
   MediaEditor,
   PairListEditor,
@@ -61,6 +62,7 @@ function toInput(
       caption: item.caption,
       aspectRatio: item.aspectRatio,
     })),
+    blocks: form.blocks,
     status,
   };
 }
@@ -216,6 +218,17 @@ export function CoachEditorForm({
             onChange={(media) => set({ media })}
             errors={errors}
             emptyHint="No media yet. The first video is featured at the top of the profile."
+          />
+        </EditorSection>
+
+        <EditorSection
+          title="Article content"
+          description="Add headings, paragraphs, media (single or side-by-side), custom attributes and custom sections. Blocks render in exactly this order on the public profile, after the coaching description."
+        >
+          <BlockEditor
+            items={form.blocks}
+            onChange={(blocks) => set({ blocks })}
+            errors={errors}
           />
         </EditorSection>
       </div>

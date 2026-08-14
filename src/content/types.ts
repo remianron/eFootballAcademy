@@ -26,6 +26,19 @@ export interface ContentMedia {
   alt?: string;
 }
 
+export type ContentBlockType = "heading" | "text" | "media" | "attributes" | "custom";
+
+/**
+ * Ordered editorial content block (flexible CMS). Rendered in stored
+ * order by the shared ContentBlockList renderer.
+ */
+export type ContentBlock =
+  | { type: "heading"; text: string; level: 2 | 3 }
+  | { type: "text"; content: string }
+  | { type: "media"; media: ContentMedia[] }
+  | { type: "attributes"; items: { name: string; value: string }[] }
+  | { type: "custom"; label: string; content: string };
+
 export type FeedbackPlatform = "YouTube" | "Facebook" | "Instagram" | "TikTok";
 
 export interface CommunityFeedback {
@@ -53,6 +66,7 @@ export interface PlayerBuild extends BaseContent {
   avoidFor: string[];
   skills?: string[];
   media?: ContentMedia[];
+  blocks?: ContentBlock[];
   communityFeedback?: CommunityFeedback[];
 }
 
@@ -77,6 +91,7 @@ export interface Tutorial extends BaseContent {
   steps?: string[];
   tips?: string[];
   media?: ContentMedia[];
+  blocks?: ContentBlock[];
 }
 
 export interface PlayerRole {
@@ -95,6 +110,7 @@ export interface FormationGuide extends BaseContent {
   weaknesses: string[];
   recommendedUsage: string;
   media?: ContentMedia[];
+  blocks?: ContentBlock[];
 }
 
 export type DiscoveryCategory =
@@ -118,6 +134,7 @@ export interface Discovery extends BaseContent {
   publishedAt?: string;
   researchStatus?: ResearchStatus;
   media?: ContentMedia[];
+  blocks?: ContentBlock[];
 }
 
 export interface SocialLink {
@@ -137,6 +154,7 @@ export interface Coach {
   status: "active" | "hidden";
   booking?: { enabled: boolean };
   media?: ContentMedia[];
+  blocks?: ContentBlock[];
 }
 
 export type ContentType =

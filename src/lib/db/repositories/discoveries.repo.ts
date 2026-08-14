@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/client";
-import type { DiscoveryDto, MediaDto } from "@/lib/db/types";
+import type { ContentBlockDto, DiscoveryDto, MediaDto } from "@/lib/db/types";
 import { listFromJson, listFromJsonNullable } from "@/lib/db/types";
+import { contentBlocksForOwner } from "@/lib/db/repositories/content-blocks.repo";
 
 function toMedia(row: {
   id: string;
@@ -49,7 +50,8 @@ function toDiscovery(
     createdAt: Date;
     updatedAt: Date;
   },
-  media: MediaDto[]
+  media: MediaDto[],
+  blocks: ContentBlockDto[]
 ): DiscoveryDto {
   return {
     id: row.id,
@@ -67,6 +69,7 @@ function toDiscovery(
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     media,
+    blocks,
   };
 }
 
@@ -130,8 +133,11 @@ export interface DiscoveryOverviewRow {
 export async function getDiscoveryById(id: string): Promise<DiscoveryDto | null> {
   const row = await prisma.discovery.findUnique({ where: { id } });
   if (!row) return null;
-  const media = await mediaForDiscoveries([row.id]);
-  return toDiscovery(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForDiscoveries([row.id]),
+    contentBlocksForOwner("DISCOVERY", [row.id]),
+  ]);
+  return toDiscovery(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }
 
 export async function listDiscoveriesOverview(): Promise<DiscoveryOverviewRow[]> {
@@ -174,8 +180,13 @@ export async function listDiscoveries(publishOnly = false): Promise<DiscoveryDto
     where: publishOnly ? { status: "PUBLISHED" } : undefined,
     orderBy: [{ publishedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
   });
-  const media = await mediaForDiscoveries(rows.map((row) => row.id));
-  return rows.map((row) => toDiscovery(row, media.get(row.id) ?? []));
+  const [media, blocks] = await Promise.all([
+    mediaForDiscoveries(rows.map((row) => row.id)),
+    contentBlocksForOwner("DISCOVERY", rows.map((row) => row.id)),
+  ]);
+  return rows.map((row) =>
+    toDiscovery(row, media.get(row.id) ?? [], blocks.get(row.id) ?? [])
+  );
 }
 
 export async function getDiscoveryBySlug(
@@ -188,6 +199,9 @@ export async function getDiscoveryBySlug(
   if (!row) return null;
   if (opts.includeUnpublished && row.status !== "PUBLISHED") return null;
   if (opts.publishOnly && row.status !== "PUBLISHED") return null;
-  const media = await mediaForDiscoveries([row.id]);
-  return toDiscovery(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForDiscoveries([row.id]),
+    contentBlocksForOwner("DISCOVERY", [row.id]),
+  ]);
+  return toDiscovery(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }

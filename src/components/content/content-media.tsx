@@ -22,6 +22,24 @@ function aspectClass(aspectRatio: string | undefined): string {
   return "aspect-video";
 }
 
+/**
+ * A 9:16 (vertical) video must not stretch to full desktop width: keep
+ * its true aspect ratio but cap the width so it reads like a normal
+ * media item. Fully responsive — on small screens it takes the full
+ * available width.
+ */
+function verticalMediaClass(aspectRatio: string | undefined): string {
+  return aspectRatio === "9:16" ? "mx-auto w-full max-w-sm" : "";
+}
+
+function frameClass(aspectRatio: string | undefined): string {
+  return cn(
+    "relative overflow-hidden rounded-control border border-border bg-card-secondary/60",
+    aspectClass(aspectRatio),
+    verticalMediaClass(aspectRatio)
+  );
+}
+
 function youtubeEmbedUrl(videoId: string): string {
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
 }
@@ -56,7 +74,31 @@ export function ContentMediaList({
   );
 }
 
-function ContentMediaItem({
+/**
+ * Side-by-side media layout used by media content blocks: items render
+ * in a responsive grid (two columns from `sm` up; 3–4 items flow into
+ * 2×2) and stack gracefully on mobile. A single item renders on its
+ * own line, centered when vertical.
+ */
+export function ContentMediaRow({ media }: { media: ContentMedia[] }) {
+  if (media.length === 0) return null;
+  if (media.length === 1) {
+    return (
+      <div>
+        <ContentMediaItem media={media[0]} />
+      </div>
+    );
+  }
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {media.map((item, index) => (
+        <ContentMediaItem key={index} media={item} />
+      ))}
+    </div>
+  );
+}
+
+export function ContentMediaItem({
   media,
   primary = false,
 }: {
@@ -74,12 +116,7 @@ function ContentMediaItem({
         media.caption || media.alt || `${meta.label} — ${videoId}`;
       return (
         <figure>
-          <div
-            className={cn(
-              "relative overflow-hidden rounded-control border border-border bg-card-secondary/60",
-              aspectClass(media.aspectRatio)
-            )}
-          >
+          <div className={frameClass(media.aspectRatio)}>
             <iframe
               src={embedUrl}
               title={title}
@@ -107,7 +144,8 @@ function ContentMediaItem({
           isExternal
             ? "border-border"
             : "border-dashed border-border",
-          aspectClass(media.aspectRatio)
+          aspectClass(media.aspectRatio),
+          verticalMediaClass(media.aspectRatio)
         )}
       >
         <Badge variant="outline" className="absolute top-3 left-3 z-10">

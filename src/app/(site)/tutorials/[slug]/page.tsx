@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge, Container, Divider, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
+import { ContentBlockList } from "@/components/content/content-blocks";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
 import { IconLightbulb } from "@/components/icons";
 import {
@@ -94,6 +95,8 @@ export default async function TutorialPage({
                   </p>
                 ))}
               </div>
+
+              <ContentBlockList blocks={tutorial.blocks} className="mt-10" />
 
               {tutorial.steps && tutorial.steps.length > 0 && (
                 <div className="mt-10">

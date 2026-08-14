@@ -10,6 +10,7 @@ import {
   type EditorErrors,
 } from "@/lib/content-editor/validation";
 import { validateContentMedia } from "@/lib/content-editor/media-input";
+import { validateContentBlocks } from "@/lib/content-blocks/validation";
 
 function hasCoachErrors(errors: EditorErrors): boolean {
   return hasErrors(errors);
@@ -60,6 +61,7 @@ function validateCoachEditorInput(
     checkUrlOptional(errors, `socialLinks.${index}.url`, link.url, "URL");
   });
   validateContentMedia(input.media, errors, "media");
+  validateContentBlocks(input.blocks, errors, "blocks");
 
   return errors;
 }

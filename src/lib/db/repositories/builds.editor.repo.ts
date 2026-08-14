@@ -8,6 +8,9 @@ import {
   type EditorErrors,
 } from "@/lib/build-editor/validation";
 import type { BuildEditorInput } from "@/lib/build-editor/types";
+import { normalizeContentBlocks } from "@/lib/content-blocks/validation";
+import type { NormalizedContentBlock } from "@/lib/content-blocks/types";
+import { syncContentBlocks } from "@/lib/db/repositories/content-blocks.repo";
 import type {
   MediaKind,
   Prisma,
@@ -60,6 +63,7 @@ type NormalizedBuildInput = {
   weaknesses: string[];
   screenshot: { url: string; alt: string; caption: string };
   media: NormalizedMediaItem[];
+  blocks: NormalizedContentBlock[];
   status: PublishStatus;
 };
 
@@ -118,6 +122,7 @@ function normalizeInput(input: BuildEditorInput): NormalizedBuildInput {
       caption: trim(input.screenshot.caption),
     },
     media,
+    blocks: normalizeContentBlocks(input.blocks),
     status: input.status,
   };
 }
@@ -372,6 +377,7 @@ async function saveInTransaction(
   await syncOrderedItems(tx, "buildStrength", build.id, data.strengths);
   await syncOrderedItems(tx, "buildWeakness", build.id, data.weaknesses);
   await syncMedia(tx, build.id, data);
+  await syncContentBlocks(tx, "BUILD", build.id, data.blocks);
 
   return { ok: true, build };
 }
@@ -423,6 +429,9 @@ export async function deleteDraftBuild(
   }
   await prisma.$transaction([
     prisma.media.deleteMany({
+      where: { ownerType: "BUILD", ownerId: buildId },
+    }),
+    prisma.contentBlock.deleteMany({
       where: { ownerType: "BUILD", ownerId: buildId },
     }),
     prisma.build.delete({ where: { id: buildId } }),

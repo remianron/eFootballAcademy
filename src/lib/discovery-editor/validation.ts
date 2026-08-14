@@ -8,6 +8,7 @@ import {
   type EditorErrors,
 } from "@/lib/content-editor/validation";
 import { validateContentMedia } from "@/lib/content-editor/media-input";
+import { validateContentBlocks } from "@/lib/content-blocks/validation";
 
 function hasDiscoveryErrors(errors: EditorErrors): boolean {
   return hasErrors(errors);
@@ -47,6 +48,7 @@ function validateDiscoveryEditorInput(
     label: "Source",
   });
   validateContentMedia(input.media, errors, "media");
+  validateContentBlocks(input.blocks, errors, "blocks");
 
   return errors;
 }

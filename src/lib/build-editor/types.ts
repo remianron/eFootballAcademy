@@ -1,4 +1,5 @@
 import type { MediaKind, PublishStatus } from "@/generated/prisma/client";
+import type { ContentBlockItem } from "@/lib/content-blocks/types";
 
 export type BuildEditorStatus = Extract<PublishStatus, "DRAFT" | "PUBLISHED" | "ARCHIVED">;
 
@@ -36,6 +37,7 @@ export interface BuildEditorFormState {
   weaknesses: string[];
   screenshot: { url: string; alt: string; caption: string };
   media: MediaFormItem[];
+  blocks: ContentBlockItem[];
 }
 
 export interface BuildEditorMediaInput {
@@ -69,6 +71,7 @@ export interface BuildEditorInput {
   weaknesses: string[];
   screenshot: { url: string; alt: string; caption: string };
   media: BuildEditorMediaInput[];
+  blocks: ContentBlockItem[];
   status: BuildEditorStatus;
 }
 

@@ -1,5 +1,6 @@
 import { extractYouTubeVideoId } from "@/lib/build-editor/youtube";
 import { isSlugFormat } from "@/lib/build-editor/slug";
+import { validateContentBlocks } from "@/lib/content-blocks/validation";
 import type {
   BuildEditorInput,
   BuildEditorMediaInput,
@@ -200,6 +201,8 @@ export function validateBuildEditorInput(
     maxLength(`${prefix}.alt`, trim(item.alt), "Alt text", 200);
     maxLength(`${prefix}.caption`, trim(item.caption), "Caption", 300);
   }
+
+  validateContentBlocks(input.blocks, errors, "blocks");
 
   return errors;
 }

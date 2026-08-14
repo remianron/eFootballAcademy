@@ -9,6 +9,9 @@ import {
   normalizeContentMedia,
   type NormalizedContentMedia,
 } from "@/lib/content-editor/media-input";
+import { normalizeContentBlocks } from "@/lib/content-blocks/validation";
+import type { NormalizedContentBlock } from "@/lib/content-blocks/types";
+import { syncContentBlocks } from "@/lib/db/repositories/content-blocks.repo";
 import { EditorFieldError } from "@/lib/content-editor/errors";
 
 export type SaveFormationResult =
@@ -32,6 +35,7 @@ type NormalizedFormation = {
   weaknesses: string[];
   roles: NormalizedFormationRole[];
   media: NormalizedContentMedia[];
+  blocks: NormalizedContentBlock[];
   status: PublishStatus;
 };
 
@@ -56,6 +60,7 @@ function normalizeFormation(input: FormationEditorInput): NormalizedFormation {
       }))
       .filter((role) => Boolean(role.position) || Boolean(role.description)),
     media: normalizeContentMedia(input.media),
+    blocks: normalizeContentBlocks(input.blocks),
     status: input.status,
   };
 }
@@ -162,6 +167,7 @@ async function saveInTransaction(
 
   await syncRoles(tx, formation.id, data.roles);
   await syncMedia(tx, formation.id, data.media);
+  await syncContentBlocks(tx, "FORMATION_GUIDE", formation.id, data.blocks);
 
   return {
     ok: true,
@@ -223,6 +229,9 @@ export async function deleteDraftFormation(
   }
   await prisma.$transaction([
     prisma.media.deleteMany({
+      where: { ownerType: "FORMATION_GUIDE", ownerId: formationGuideId },
+    }),
+    prisma.contentBlock.deleteMany({
       where: { ownerType: "FORMATION_GUIDE", ownerId: formationGuideId },
     }),
     prisma.formationGuide.delete({ where: { id: formationGuideId } }),

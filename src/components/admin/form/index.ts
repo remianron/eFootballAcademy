@@ -18,3 +18,4 @@ export {
   MediaEditor,
   type ContentMediaItem,
 } from "@/components/admin/form/media-editor";
+export { BlockEditor } from "@/components/admin/form/block-editor";

@@ -9,6 +9,9 @@ import {
   normalizeContentMedia,
   type NormalizedContentMedia,
 } from "@/lib/content-editor/media-input";
+import { normalizeContentBlocks } from "@/lib/content-blocks/validation";
+import type { NormalizedContentBlock } from "@/lib/content-blocks/types";
+import { syncContentBlocks } from "@/lib/db/repositories/content-blocks.repo";
 import { EditorFieldError } from "@/lib/content-editor/errors";
 
 export type SaveTutorialResult =
@@ -30,6 +33,7 @@ type NormalizedTutorial = {
   steps: string[];
   tips: string[];
   media: NormalizedContentMedia[];
+  blocks: NormalizedContentBlock[];
   status: PublishStatus;
 };
 
@@ -45,6 +49,7 @@ function normalizeTutorial(input: TutorialEditorInput): NormalizedTutorial {
     steps: input.steps.map(trim),
     tips: input.tips.map(trim),
     media: normalizeContentMedia(input.media),
+    blocks: normalizeContentBlocks(input.blocks),
     status: input.status,
   };
 }
@@ -144,6 +149,7 @@ async function saveInTransaction(
 
   await syncSteps(tx, tutorial.id, data.steps);
   await syncMedia(tx, tutorial.id, data.media);
+  await syncContentBlocks(tx, "TUTORIAL", tutorial.id, data.blocks);
 
   return {
     ok: true,
@@ -198,6 +204,9 @@ export async function deleteDraftTutorial(
   }
   await prisma.$transaction([
     prisma.media.deleteMany({
+      where: { ownerType: "TUTORIAL", ownerId: tutorialId },
+    }),
+    prisma.contentBlock.deleteMany({
       where: { ownerType: "TUTORIAL", ownerId: tutorialId },
     }),
     prisma.tutorial.delete({ where: { id: tutorialId } }),

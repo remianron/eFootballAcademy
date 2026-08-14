@@ -5,6 +5,7 @@ import type {
 } from "@/generated/prisma/client";
 import type { ContentMediaInput } from "@/lib/content-editor/media-input";
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
+import type { ContentBlockItem } from "@/lib/content-blocks/types";
 
 export type TutorialEditorStatus = Extract<
   PublishStatus,
@@ -22,6 +23,7 @@ export interface TutorialEditorFormState {
   steps: string[];
   tips: string[];
   media: ContentMediaItem[];
+  blocks: ContentBlockItem[];
 }
 
 export interface TutorialEditorInput {
@@ -34,5 +36,6 @@ export interface TutorialEditorInput {
   steps: string[];
   tips: string[];
   media: ContentMediaInput[];
+  blocks: ContentBlockItem[];
   status: TutorialEditorStatus;
 }

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/client";
-import type { CoachDto, MediaDto, SocialLinkDto } from "@/lib/db/types";
+import type { CoachDto, ContentBlockDto, MediaDto, SocialLinkDto } from "@/lib/db/types";
 import { listFromJson } from "@/lib/db/types";
+import { contentBlocksForOwner } from "@/lib/db/repositories/content-blocks.repo";
 import type { Prisma } from "@/generated/prisma/client";
 
 function toSocialLink(row: { platform: string; url: string; order: number }): SocialLinkDto {
@@ -60,8 +61,11 @@ export async function getCoachById(id: string): Promise<CoachDto | null> {
     include: coachInclude,
   });
   if (!row) return null;
-  const media = await mediaForCoaches([row.id]);
-  return toCoach(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForCoaches([row.id]),
+    contentBlocksForOwner("COACH", [row.id]),
+  ]);
+  return toCoach(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }
 
 export async function listCoachesOverview(): Promise<CoachOverviewRow[]> {
@@ -97,7 +101,8 @@ function toCoach(
     createdAt: Date;
     updatedAt: Date;
   },
-  media: MediaDto[]
+  media: MediaDto[],
+  blocks: ContentBlockDto[]
 ): CoachDto {
   return {
     id: row.id,
@@ -113,6 +118,7 @@ function toCoach(
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     media,
+    blocks,
   };
 }
 
@@ -136,8 +142,13 @@ export async function listCoaches(publishOnly = false): Promise<CoachDto[]> {
     include: coachInclude,
     orderBy: { name: "asc" },
   });
-  const media = await mediaForCoaches(rows.map((row) => row.id));
-  return rows.map((row) => toCoach(row, media.get(row.id) ?? []));
+  const [media, blocks] = await Promise.all([
+    mediaForCoaches(rows.map((row) => row.id)),
+    contentBlocksForOwner("COACH", rows.map((row) => row.id)),
+  ]);
+  return rows.map((row) =>
+    toCoach(row, media.get(row.id) ?? [], blocks.get(row.id) ?? [])
+  );
 }
 
 export async function getCoachBySlug(
@@ -151,6 +162,9 @@ export async function getCoachBySlug(
   if (!row) return null;
   if (opts.includeUnpublished && row.status !== "PUBLISHED") return null;
   if (opts.publishOnly && row.status !== "PUBLISHED") return null;
-  const media = await mediaForCoaches([row.id]);
-  return toCoach(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForCoaches([row.id]),
+    contentBlocksForOwner("COACH", [row.id]),
+  ]);
+  return toCoach(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }

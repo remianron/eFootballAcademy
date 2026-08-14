@@ -1,5 +1,6 @@
 import type { DiscoveryDto } from "@/lib/db/types";
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
+import { contentBlockItemsFromDto } from "@/lib/content-blocks/transform";
 import type { DiscoveryEditorFormState } from "@/lib/discovery-editor/types";
 
 export function emptyDiscoveryFormState(): DiscoveryEditorFormState {
@@ -15,6 +16,7 @@ export function emptyDiscoveryFormState(): DiscoveryEditorFormState {
     sources: [],
     researchStatus: "",
     media: [],
+    blocks: [],
   };
 }
 
@@ -44,5 +46,6 @@ export function discoveryFormStateFromDto(
         aspectRatio: item.aspectRatio,
       })
     ),
+    blocks: contentBlockItemsFromDto(discovery.blocks),
   };
 }

@@ -5,6 +5,7 @@ import type {
 } from "@/generated/prisma/client";
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
 import type { ContentMediaInput } from "@/lib/content-editor/media-input";
+import type { ContentBlockItem } from "@/lib/content-blocks/types";
 
 export type DiscoveryEditorStatus = Extract<PublishStatus, "DRAFT" | "PUBLISHED">;
 
@@ -20,6 +21,7 @@ export interface DiscoveryEditorFormState {
   sources: string[];
   researchStatus: ResearchStatus | "";
   media: ContentMediaItem[];
+  blocks: ContentBlockItem[];
 }
 
 export interface DiscoveryEditorInput {
@@ -33,6 +35,7 @@ export interface DiscoveryEditorInput {
   sources: string[];
   researchStatus: ResearchStatus;
   media: ContentMediaInput[];
+  blocks: ContentBlockItem[];
   status: DiscoveryEditorStatus;
 }
 

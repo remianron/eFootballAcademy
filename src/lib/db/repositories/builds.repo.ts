@@ -2,11 +2,13 @@ import { prisma } from "@/lib/db/client";
 import type {
   BuildDetailDto,
   BuildSummaryDto,
+  ContentBlockDto,
   FeedbackEntryDto,
   MediaDto,
   StatisticEntryDto,
 } from "@/lib/db/types";
 import { listFromJson } from "@/lib/db/types";
+import { contentBlocksForOwner } from "@/lib/db/repositories/content-blocks.repo";
 import type { Prisma, PublishStatus } from "@/generated/prisma/client";
 
 export const buildInclude = {
@@ -98,7 +100,11 @@ function toMedia(row: {
   };
 }
 
-function toBuildDetail(row: BuildRow, media: MediaDto[]): BuildDetailDto {
+function toBuildDetail(
+  row: BuildRow,
+  media: MediaDto[],
+  blocks: ContentBlockDto[]
+): BuildDetailDto {
   const statistics = row.statistics.map(toStatistic);
   const keyAttributes = statistics
     .filter((stat) => stat.isKey)
@@ -143,6 +149,7 @@ function toBuildDetail(row: BuildRow, media: MediaDto[]): BuildDetailDto {
     weaknesses: row.weaknesses.map((weakness) => weakness.text),
     feedback: row.feedback.map(toFeedback),
     media,
+    blocks,
   };
 }
 
@@ -160,15 +167,22 @@ async function mediaForBuilds(buildIds: string[]): Promise<Map<string, MediaDto[
   return grouped;
 }
 
+async function blocksForBuilds(buildIds: string[]): Promise<Map<string, ContentBlockDto[]>> {
+  return contentBlocksForOwner("BUILD", buildIds);
+}
+
 export async function listBuilds(publishOnly = false): Promise<BuildDetailDto[]> {
   const rows = await prisma.build.findMany({
     where: publishOnly ? { status: "PUBLISHED" } : undefined,
     include: buildInclude,
     orderBy: { createdAt: "desc" },
   });
-  const media = await mediaForBuilds(rows.map((row) => row.id));
+  const [media, blocks] = await Promise.all([
+    mediaForBuilds(rows.map((row) => row.id)),
+    blocksForBuilds(rows.map((row) => row.id)),
+  ]);
   return rows.map((row) =>
-    toBuildDetail(row, media.get(row.id) ?? [])
+    toBuildDetail(row, media.get(row.id) ?? [], blocks.get(row.id) ?? [])
   );
 }
 
@@ -183,8 +197,11 @@ export async function getBuildBySlug(
   if (!row) return null;
   if (opts.includeUnpublished && row.status !== "PUBLISHED") return null;
   if (opts.publishOnly && row.status !== "PUBLISHED") return null;
-  const media = await mediaForBuilds([row.id]);
-  return toBuildDetail(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForBuilds([row.id]),
+    blocksForBuilds([row.id]),
+  ]);
+  return toBuildDetail(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }
 
 export async function listBuildsForCard(
@@ -201,8 +218,13 @@ export async function listBuildsForCard(
     include: buildInclude,
     orderBy: { createdAt: "asc" },
   });
-  const media = await mediaForBuilds(rows.map((row) => row.id));
-  return rows.map((row) => toBuildDetail(row, media.get(row.id) ?? []));
+  const [media, blocks] = await Promise.all([
+    mediaForBuilds(rows.map((row) => row.id)),
+    blocksForBuilds(rows.map((row) => row.id)),
+  ]);
+  return rows.map((row) =>
+    toBuildDetail(row, media.get(row.id) ?? [], blocks.get(row.id) ?? [])
+  );
 }
 
 export async function getBuildById(id: string): Promise<BuildDetailDto | null> {
@@ -211,8 +233,11 @@ export async function getBuildById(id: string): Promise<BuildDetailDto | null> {
     include: buildInclude,
   });
   if (!row) return null;
-  const media = await mediaForBuilds([row.id]);
-  return toBuildDetail(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForBuilds([row.id]),
+    blocksForBuilds([row.id]),
+  ]);
+  return toBuildDetail(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }
 
 export interface BuildCardRowDto {

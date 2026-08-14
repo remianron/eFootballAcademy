@@ -23,6 +23,7 @@ import {
   useEditorAction,
 } from "@/components/admin/content-editor";
 import {
+  BlockEditor,
   MediaEditor,
   PairListEditor,
   StringListEditor,
@@ -63,6 +64,7 @@ function toInput(
       caption: item.caption,
       aspectRatio: item.aspectRatio,
     })),
+    blocks: form.blocks,
     status,
   };
 }
@@ -251,6 +253,17 @@ export function FormationEditorForm({
             onChange={(media) => set({ media })}
             errors={errors}
             emptyHint="No media yet. The first video is featured at the top of the guide."
+          />
+        </EditorSection>
+
+        <EditorSection
+          title="Research / Article content"
+          description="Build an editorial article with headings, paragraphs, media (single or side-by-side), custom attributes and custom sections. Blocks render in exactly this order on the public page, after the formation overview."
+        >
+          <BlockEditor
+            items={form.blocks}
+            onChange={(blocks) => set({ blocks })}
+            errors={errors}
           />
         </EditorSection>
       </div>

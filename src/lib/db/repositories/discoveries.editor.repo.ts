@@ -9,6 +9,9 @@ import {
   normalizeContentMedia,
   type NormalizedContentMedia,
 } from "@/lib/content-editor/media-input";
+import { normalizeContentBlocks } from "@/lib/content-blocks/validation";
+import type { NormalizedContentBlock } from "@/lib/content-blocks/types";
+import { syncContentBlocks } from "@/lib/db/repositories/content-blocks.repo";
 import { EditorFieldError } from "@/lib/content-editor/errors";
 
 export type SaveDiscoveryResult =
@@ -31,6 +34,7 @@ type NormalizedDiscovery = {
   sources: string[];
   researchStatus: DiscoveryEditorInput["researchStatus"];
   media: NormalizedContentMedia[];
+  blocks: NormalizedContentBlock[];
   status: PublishStatus;
 };
 
@@ -47,6 +51,7 @@ function normalizeDiscovery(input: DiscoveryEditorInput): NormalizedDiscovery {
     sources: input.sources.map(trim),
     researchStatus: input.researchStatus,
     media: normalizeContentMedia(input.media),
+    blocks: normalizeContentBlocks(input.blocks),
     status: input.status,
   };
 }
@@ -129,6 +134,7 @@ async function saveInTransaction(
       });
 
   await syncMedia(tx, discovery.id, data.media);
+  await syncContentBlocks(tx, "DISCOVERY", discovery.id, data.blocks);
 
   return {
     ok: true,
@@ -190,6 +196,9 @@ export async function deleteDraftDiscovery(
   }
   await prisma.$transaction([
     prisma.media.deleteMany({
+      where: { ownerType: "DISCOVERY", ownerId: discoveryId },
+    }),
+    prisma.contentBlock.deleteMany({
       where: { ownerType: "DISCOVERY", ownerId: discoveryId },
     }),
     prisma.discovery.delete({ where: { id: discoveryId } }),

@@ -2,6 +2,7 @@ import type { PublishStatus } from "@/generated/prisma/client";
 import type { PairItem } from "@/components/admin/form/pair-list-editor";
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
 import type { ContentMediaInput } from "@/lib/content-editor/media-input";
+import type { ContentBlockItem } from "@/lib/content-blocks/types";
 
 export type FormationEditorStatus = Extract<PublishStatus, "DRAFT" | "PUBLISHED">;
 
@@ -18,6 +19,7 @@ export interface FormationEditorFormState {
   weaknesses: string[];
   roles: PairItem[];
   media: ContentMediaItem[];
+  blocks: ContentBlockItem[];
 }
 
 export interface FormationEditorInput {
@@ -32,5 +34,6 @@ export interface FormationEditorInput {
   weaknesses: string[];
   roles: { position: string; description: string }[];
   media: ContentMediaInput[];
+  blocks: ContentBlockItem[];
   status: FormationEditorStatus;
 }

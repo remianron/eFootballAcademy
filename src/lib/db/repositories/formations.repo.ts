@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/client";
-import type { FormationDto, FormationRoleDto, MediaDto } from "@/lib/db/types";
+import type { ContentBlockDto, FormationDto, FormationRoleDto, MediaDto } from "@/lib/db/types";
 import { listFromJson } from "@/lib/db/types";
+import { contentBlocksForOwner } from "@/lib/db/repositories/content-blocks.repo";
 import type { Prisma } from "@/generated/prisma/client";
 
 function toRole(row: { position: string; description: string; order: number }): FormationRoleDto {
@@ -96,8 +97,11 @@ export async function getFormationById(id: string): Promise<FormationDto | null>
     include: formationInclude,
   });
   if (!row) return null;
-  const media = await mediaForFormations([row.id]);
-  return toFormation(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForFormations([row.id]),
+    contentBlocksForOwner("FORMATION_GUIDE", [row.id]),
+  ]);
+  return toFormation(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }
 
 export async function listFormationsOverview(): Promise<FormationOverviewRow[]> {
@@ -137,7 +141,8 @@ function toFormation(
     createdAt: Date;
     updatedAt: Date;
   },
-  media: MediaDto[]
+  media: MediaDto[],
+  blocks: ContentBlockDto[]
 ): FormationDto {
   return {
     id: row.id,
@@ -156,6 +161,7 @@ function toFormation(
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     media,
+    blocks,
   };
 }
 
@@ -181,8 +187,13 @@ export async function listFormations(publishOnly = false): Promise<FormationDto[
     include: formationInclude,
     orderBy: { createdAt: "desc" },
   });
-  const media = await mediaForFormations(rows.map((row) => row.id));
-  return rows.map((row) => toFormation(row, media.get(row.id) ?? []));
+  const [media, blocks] = await Promise.all([
+    mediaForFormations(rows.map((row) => row.id)),
+    contentBlocksForOwner("FORMATION_GUIDE", rows.map((row) => row.id)),
+  ]);
+  return rows.map((row) =>
+    toFormation(row, media.get(row.id) ?? [], blocks.get(row.id) ?? [])
+  );
 }
 
 export async function getFormationBySlug(
@@ -196,6 +207,9 @@ export async function getFormationBySlug(
   if (!row) return null;
   if (opts.includeUnpublished && row.status !== "PUBLISHED") return null;
   if (opts.publishOnly && row.status !== "PUBLISHED") return null;
-  const media = await mediaForFormations([row.id]);
-  return toFormation(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForFormations([row.id]),
+    contentBlocksForOwner("FORMATION_GUIDE", [row.id]),
+  ]);
+  return toFormation(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }

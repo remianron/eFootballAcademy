@@ -26,6 +26,7 @@ import { StatisticsEditor } from "@/components/admin/build-editor/statistics-edi
 import { KeyAttributesEditor } from "@/components/admin/build-editor/key-attributes-editor";
 import { MediaEditor } from "@/components/admin/build-editor/media-editor";
 import {
+  BlockEditor,
   NumberField,
   StringListEditor,
   TextAreaField,
@@ -85,6 +86,7 @@ function toInput(
       caption: item.caption,
       aspectRatio: item.aspectRatio,
     })),
+    blocks: form.blocks,
     status,
   };
 }
@@ -476,6 +478,17 @@ export function BuildEditorForm({
           <MediaEditor
             items={form.media}
             onChange={(media) => set({ media })}
+            errors={errors}
+          />
+        </EditorSection>
+
+        <EditorSection
+          title="Article content"
+          description="Add headings, paragraphs, media (single or side-by-side), custom attributes and custom sections. Blocks render in exactly this order on the public page, after the philosophy."
+        >
+          <BlockEditor
+            items={form.blocks}
+            onChange={(blocks) => set({ blocks })}
             errors={errors}
           />
         </EditorSection>

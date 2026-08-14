@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/client";
-import type { MediaDto, TutorialDto, TutorialStepDto } from "@/lib/db/types";
+import type { ContentBlockDto, MediaDto, TutorialDto, TutorialStepDto } from "@/lib/db/types";
 import { listFromJson } from "@/lib/db/types";
+import { contentBlocksForOwner } from "@/lib/db/repositories/content-blocks.repo";
 import type { PublishStatus, Prisma } from "@/generated/prisma/client";
 
 function toStep(row: { text: string; order: number }): TutorialStepDto {
@@ -61,7 +62,8 @@ function toTutorial(
     createdAt: Date;
     updatedAt: Date;
   },
-  media: MediaDto[]
+  media: MediaDto[],
+  blocks: ContentBlockDto[]
 ): TutorialDto {
   return {
     id: row.id,
@@ -78,6 +80,7 @@ function toTutorial(
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     media,
+    blocks,
   };
 }
 
@@ -103,8 +106,13 @@ export async function listTutorials(publishOnly = false): Promise<TutorialDto[]>
     include: tutorialInclude,
     orderBy: { createdAt: "desc" },
   });
-  const media = await mediaForTutorials(rows.map((row) => row.id));
-  return rows.map((row) => toTutorial(row, media.get(row.id) ?? []));
+  const [media, blocks] = await Promise.all([
+    mediaForTutorials(rows.map((row) => row.id)),
+    contentBlocksForOwner("TUTORIAL", rows.map((row) => row.id)),
+  ]);
+  return rows.map((row) =>
+    toTutorial(row, media.get(row.id) ?? [], blocks.get(row.id) ?? [])
+  );
 }
 
 export async function getTutorialBySlug(
@@ -118,8 +126,11 @@ export async function getTutorialBySlug(
   if (!row) return null;
   if (opts.includeUnpublished && row.status !== "PUBLISHED") return null;
   if (opts.publishOnly && row.status !== "PUBLISHED") return null;
-  const media = await mediaForTutorials([row.id]);
-  return toTutorial(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForTutorials([row.id]),
+    contentBlocksForOwner("TUTORIAL", [row.id]),
+  ]);
+  return toTutorial(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }
 
 export async function getTutorialById(
@@ -130,8 +141,11 @@ export async function getTutorialById(
     include: tutorialInclude,
   });
   if (!row) return null;
-  const media = await mediaForTutorials([row.id]);
-  return toTutorial(row, media.get(row.id) ?? []);
+  const [media, blocks] = await Promise.all([
+    mediaForTutorials([row.id]),
+    contentBlocksForOwner("TUTORIAL", [row.id]),
+  ]);
+  return toTutorial(row, media.get(row.id) ?? [], blocks.get(row.id) ?? []);
 }
 
 export interface TutorialCardRowDto {

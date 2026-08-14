@@ -1,6 +1,7 @@
 import type {
   BuildDetailDto,
   CoachDto,
+  ContentBlockDto,
   DiscoveryDto,
   FormationDto,
   MediaDto,
@@ -9,6 +10,7 @@ import type {
 import type {
   Coach,
   CommunityFeedback,
+  ContentBlock,
   ContentMedia,
   Discovery,
   FormationGuide,
@@ -81,31 +83,59 @@ const FEEDBACK_PLATFORM_MAP = {
 
 export function toPublicContentMedia(media: MediaDto[]): ContentMedia[] {
   return media.flatMap((item): ContentMedia[] => {
-    if (item.kind === "YOUTUBE_VIDEO") {
-      if (!item.youtubeVideoId) return [];
-      return [
-        {
-          type: "video",
-          youtubeVideoId: item.youtubeVideoId,
-          thumbnail: item.thumbnailUrl ?? undefined,
-          caption: item.caption ?? undefined,
-          aspectRatio: item.aspectRatio || undefined,
-          alt: item.alt ?? undefined,
-        },
-      ];
+    const mapped = toPublicContentMediaItem(item);
+    return mapped ? [mapped] : [];
+  });
+}
+
+type MediaItemLike = Pick<
+  MediaDto,
+  "kind" | "youtubeVideoId" | "aspectRatio" | "thumbnailUrl" | "url" | "alt" | "caption"
+>;
+
+function toPublicContentMediaItem(item: MediaItemLike): ContentMedia | null {
+  if (item.kind === "YOUTUBE_VIDEO") {
+    if (!item.youtubeVideoId) return null;
+    return {
+      type: "video",
+      youtubeVideoId: item.youtubeVideoId,
+      thumbnail: item.thumbnailUrl ?? undefined,
+      caption: item.caption ?? undefined,
+      aspectRatio: item.aspectRatio || undefined,
+      alt: item.alt ?? undefined,
+    };
+  }
+  if (!item.url) return null;
+  const type: ContentMedia["type"] = item.kind === "GIF" ? "gif" : "image";
+  return {
+    type,
+    url: item.url,
+    thumbnail: item.thumbnailUrl ?? undefined,
+    caption: item.caption ?? undefined,
+    aspectRatio: item.aspectRatio || undefined,
+    alt: item.alt ?? undefined,
+  };
+}
+
+export function toPublicContentBlocks(blocks: ContentBlockDto[]): ContentBlock[] {
+  return blocks.flatMap((block): ContentBlock[] => {
+    switch (block.type) {
+      case "heading":
+        return [{ type: "heading", text: block.text, level: block.level }];
+      case "text":
+        return [{ type: "text", content: block.content }];
+      case "media": {
+        const media = block.media
+          .map((item) => toPublicContentMediaItem(item))
+          .filter((item): item is ContentMedia => item !== null);
+        if (media.length === 0) return [];
+        return [{ type: "media", media }];
+      }
+      case "attributes":
+        return [{ type: "attributes", items: block.items }];
+      case "custom":
+        return [{ type: "custom", label: block.label, content: block.content }];
     }
-    if (!item.url) return [];
-    const type: ContentMedia["type"] = item.kind === "GIF" ? "gif" : "image";
-    return [
-      {
-        type,
-        url: item.url,
-        thumbnail: item.thumbnailUrl ?? undefined,
-        caption: item.caption ?? undefined,
-        aspectRatio: item.aspectRatio || undefined,
-        alt: item.alt ?? undefined,
-      },
-    ];
   });
 }
 
@@ -123,6 +153,7 @@ function toPublicFeedback(feedback: BuildDetailDto["feedback"]): CommunityFeedba
 
 export function toPublicBuild(build: BuildDetailDto): PlayerBuild {
   const media = toPublicContentMedia(build.media);
+  const blocks = toPublicContentBlocks(build.blocks);
   const feedback = toPublicFeedback(build.feedback);
   return {
     id: build.id,
@@ -144,6 +175,7 @@ export function toPublicBuild(build: BuildDetailDto): PlayerBuild {
     avoidFor: build.avoidFor,
     skills: build.skills.length > 0 ? build.skills : undefined,
     media: media.length > 0 ? media : undefined,
+    blocks: blocks.length > 0 ? blocks : undefined,
     communityFeedback: feedback.length > 0 ? feedback : undefined,
     publishedStatus: PUBLISHED_STATUS_MAP[build.status],
     createdAt: iso(build.createdAt),
@@ -179,6 +211,7 @@ export function toPublicTutorial(tutorial: TutorialDto): Tutorial {
     (item) => item.kind === "YOUTUBE_VIDEO" && item.youtubeVideoId
   );
   const thumbnail = firstImage(tutorial.media);
+  const blocks = toPublicContentBlocks(tutorial.blocks);
   return {
     id: tutorial.id,
     slug: tutorial.slug,
@@ -192,6 +225,7 @@ export function toPublicTutorial(tutorial: TutorialDto): Tutorial {
     thumbnail,
     videoUrl: video?.youtubeVideoId ? youtubeUrl(video.youtubeVideoId) : undefined,
     media: toPublicContentMedia(tutorial.media),
+    blocks: blocks.length > 0 ? blocks : undefined,
     publishedStatus: PUBLISHED_STATUS_MAP[tutorial.status],
     createdAt: iso(tutorial.createdAt),
     updatedAt: iso(tutorial.updatedAt),
@@ -237,6 +271,7 @@ export function toPublicFormation(formation: FormationDto): FormationGuide {
     position: role.position,
     description: role.description,
   }));
+  const blocks = toPublicContentBlocks(formation.blocks);
   return {
     id: formation.id,
     slug: formation.slug,
@@ -251,6 +286,7 @@ export function toPublicFormation(formation: FormationDto): FormationGuide {
     weaknesses: formation.weaknesses,
     recommendedUsage: formation.recommendedUsage,
     media: toPublicContentMedia(formation.media),
+    blocks: blocks.length > 0 ? blocks : undefined,
     publishedStatus: PUBLISHED_STATUS_MAP[formation.status],
     createdAt: iso(formation.createdAt),
     updatedAt: iso(formation.updatedAt),
@@ -275,6 +311,7 @@ export function toPublicDiscoveryCard(row: DiscoveryCardRowDto): Discovery {
 }
 
 export function toPublicDiscovery(discovery: DiscoveryDto): Discovery {
+  const blocks = toPublicContentBlocks(discovery.blocks);
   return {
     id: discovery.id,
     slug: discovery.slug,
@@ -287,6 +324,7 @@ export function toPublicDiscovery(discovery: DiscoveryDto): Discovery {
     sources: discovery.sources.length > 0 ? discovery.sources : undefined,
     thumbnail: firstImage(discovery.media),
     media: toPublicContentMedia(discovery.media),
+    blocks: blocks.length > 0 ? blocks : undefined,
     publishedAt: discovery.publishedAt ? iso(discovery.publishedAt) : undefined,
     researchStatus: RESEARCH_STATUS_MAP[discovery.researchStatus],
     publishedStatus: PUBLISHED_STATUS_MAP[discovery.status],
@@ -296,6 +334,7 @@ export function toPublicDiscovery(discovery: DiscoveryDto): Discovery {
 }
 
 export function toPublicCoach(coach: CoachDto): Coach {
+  const blocks = toPublicContentBlocks(coach.blocks);
   return {
     id: coach.id,
     slug: coach.slug,
@@ -311,5 +350,6 @@ export function toPublicCoach(coach: CoachDto): Coach {
     status: coach.status === "PUBLISHED" ? "active" : "hidden",
     booking: { enabled: coach.bookingEnabled },
     media: toPublicContentMedia(coach.media),
+    blocks: blocks.length > 0 ? blocks : undefined,
   };
 }

@@ -4,6 +4,7 @@ import { Badge, Container, Divider, Section } from "@/components";
 import { OvrRing, StatBars } from "@/components/content/attribute-bars";
 import { BuildSwitcher } from "@/components/content/build-switcher";
 import { ContentMediaList } from "@/components/content/content-media";
+import { ContentBlockList } from "@/components/content/content-blocks";
 import { CommunityFeedbackList } from "@/components/content/community-feedback";
 import { cn } from "@/lib/cn";
 import {
@@ -102,6 +103,7 @@ export default async function BuildPage({
                   {build.philosophy}
                 </p>
               </div>
+              <ContentBlockList blocks={build.blocks} className="mt-10" />
             </section>
 
             <section>

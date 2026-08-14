@@ -493,3 +493,35 @@ model Session {
 
   @@index([coachId, status])
 }
+
+// ── Ordered editorial content blocks (flexible CMS) ────────────────
+// Additive, polymorphic block system for research/editorial content.
+// Blocks are stored in strict stored order (order asc) and are entirely
+// optional: records without blocks render exactly as before.
+//
+//   type (string, not enum) — extensible without migrations:
+//     "heading"    data: { text, level: 2 | 3 }
+//     "text"       data: { content }                     // \n\n = paragraphs
+//     "media"      data: { media: [{ kind, youtubeVideoId, url,
+//                      thumbnailUrl, alt, caption, aspectRatio }] }
+//                    1 item = single media, 2+ = side-by-side row
+//     "attributes" data: { items: [{ name, value }] }    // manual/custom fields
+//     "custom"     data: { label?, content }             // flexible section
+//
+// ownerType/ownerId use the same no-FK convention as Media. Media inside
+// blocks is self-contained (validated through the same content-media
+// pipeline); the Media table itself is untouched.
+
+model ContentBlock {
+  id        String         @id @default(cuid())
+  ownerType MediaOwnerType
+  ownerId   String // no FK — resolves to Build/Tutorial/FormationGuide/Discovery/Coach
+
+  type String     @db.VarChar(32)
+  data Json
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerType, ownerId, order])
+}

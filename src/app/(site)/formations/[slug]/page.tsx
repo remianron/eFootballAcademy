@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge, Card, Container, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
+import { ContentBlockList } from "@/components/content/content-blocks";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
 import { IconTarget } from "@/components/icons";
 import { getPublishedFormationBySlug } from "@/lib/public";
@@ -56,6 +57,8 @@ export default async function FormationPage({
               className="aspect-[16/9] w-full lg:aspect-[21/9]"
             />
           )}
+
+          <ContentBlockList blocks={formation.blocks} className="mt-12" />
 
           <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-12">
             <div>

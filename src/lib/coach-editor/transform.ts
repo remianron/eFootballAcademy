@@ -1,5 +1,6 @@
 import type { CoachDto } from "@/lib/db/types";
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
+import { contentBlockItemsFromDto } from "@/lib/content-blocks/transform";
 import type { CoachEditorFormState } from "@/lib/coach-editor/types";
 
 export function emptyCoachFormState(): CoachEditorFormState {
@@ -13,6 +14,7 @@ export function emptyCoachFormState(): CoachEditorFormState {
     bookingEnabled: false,
     socialLinks: [],
     media: [],
+    blocks: [],
   };
 }
 
@@ -41,5 +43,6 @@ export function coachFormStateFromDto(coach: CoachDto): CoachEditorFormState {
         aspectRatio: item.aspectRatio,
       })
     ),
+    blocks: contentBlockItemsFromDto(coach.blocks),
   };
 }
