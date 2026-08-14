@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Badge, Button, Container, Section } from "@/components";
 import { IconArrowRight, IconPulse } from "@/components/icons";
 import { OvrRing } from "@/components/content/attribute-bars";
+import { initials } from "@/lib/labels";
 import { getFeaturedContent } from "@/lib/public";
-import type { PlayerBuild } from "@/content/types";
+import type { Coach, PlayerBuild } from "@/content/types";
 
 export async function Hero() {
-  const featured = await getFeaturedContent("hero");
-  const build = featured.find((entry) => entry.type === "build")?.content;
+  const featured = await getFeaturedContent("featured");
+  const entry = featured[0];
+  const build = entry?.type === "build" ? entry.content : undefined;
   const attributes = build
     ? Object.entries(build.keyAttributes).slice(0, 5)
     : [];
@@ -42,9 +44,71 @@ export async function Hero() {
           {build && (
             <FeaturedBuildPanel build={build} attributes={attributes} />
           )}
+          {entry?.type === "coach" && (
+            <FeaturedCoachPanel coach={entry.content} />
+          )}
         </div>
       </Container>
     </Section>
+  );
+}
+
+function FeaturedCoachPanel({ coach }: { coach: Coach }) {
+  return (
+    <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+      <div
+        aria-hidden="true"
+        className="absolute -inset-6 rounded-[2rem] bg-primary/10 blur-3xl"
+      />
+      <div className="relative rounded-card border border-border bg-card p-6 shadow-card sm:p-8">
+        <div className="flex items-center gap-4">
+          <span
+            aria-hidden="true"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-primary/40 bg-primary/10 font-display text-lg font-bold text-electric"
+          >
+            {initials(coach.name)}
+          </span>
+          <div>
+            <Badge variant="electric">Featured Coach</Badge>
+            <p className="mt-2 font-display text-display-lg font-semibold text-foreground">
+              {coach.name}
+            </p>
+            <p className="mt-1 text-xs tracking-widest text-muted uppercase">
+              Expert Coach
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          {coach.specialties.slice(0, 4).map((specialty) => (
+            <span
+              key={specialty}
+              className="rounded-pill border border-border bg-card-secondary px-2.5 py-1 text-[0.6875rem] font-medium text-secondary"
+            >
+              {specialty}
+            </span>
+          ))}
+        </div>
+
+        <p className="mt-5 text-sm leading-relaxed text-secondary line-clamp-3">
+          {coach.bio}
+        </p>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <p className="flex items-center gap-2 text-[0.6875rem] leading-relaxed text-muted">
+            <IconPulse className="h-3.5 w-3.5 shrink-0 text-electric" />
+            Featured by the Academy — full profile and booking on the coach page.
+          </p>
+          <Link
+            href={`/coaching/${coach.slug}`}
+            className="group inline-flex items-center gap-2 text-sm font-medium text-secondary transition-colors hover:text-electric"
+          >
+            View profile
+            <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
 
