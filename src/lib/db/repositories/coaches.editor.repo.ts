@@ -163,8 +163,9 @@ export async function saveCoach(
   if (hasCoachErrors(errors)) return { ok: false, errors };
   const data = normalizeCoach(input);
   try {
-    return await prisma.$transaction((tx) =>
-      saveInTransaction(tx, data, opts.coachId)
+    return await prisma.$transaction(
+      (tx) => saveInTransaction(tx, data, opts.coachId),
+      { maxWait: 10_000 }
     );
   } catch (error) {
     if (error instanceof EditorFieldError) {
