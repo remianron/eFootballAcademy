@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Badge, Card, Container, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
 import { ContentBlockList } from "@/components/content/content-blocks";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { IconFlask } from "@/components/icons";
 import {
   DISCOVERY_CATEGORY_LABELS,
@@ -106,6 +107,7 @@ export default async function DiscoveryPage({
                   </ul>
                 </Card>
               )}
+              <AdSlot placement="sidebar" />
             </div>
 
             <div className="min-w-0 space-y-5">
@@ -125,6 +127,8 @@ export default async function DiscoveryPage({
               )}
 
               <ContentBlockList blocks={discovery.blocks} className="pt-4" />
+
+              <AdSlot placement="content-inline" className="pt-2" />
             </div>
           </div>
         </Container>

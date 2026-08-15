@@ -4,6 +4,7 @@ import { Badge, Container, Divider, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
 import { ContentBlockList } from "@/components/content/content-blocks";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { IconLightbulb } from "@/components/icons";
 import {
   DIFFICULTY_LABELS,
@@ -98,6 +99,8 @@ export default async function TutorialPage({
 
               <ContentBlockList blocks={tutorial.blocks} className="mt-10" />
 
+              <AdSlot placement="content-inline" className="mt-10" />
+
               {tutorial.steps && tutorial.steps.length > 0 && (
                 <div className="mt-10">
                   <h2 className="font-display text-display-lg font-semibold text-foreground">
@@ -144,6 +147,8 @@ export default async function TutorialPage({
                   </ul>
                 </div>
               )}
+
+              <AdSlot placement="before-related" className="mt-10" />
             </div>
           </div>
         </Container>

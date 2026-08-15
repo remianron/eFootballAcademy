@@ -1,7 +1,7 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "danger";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "danger" | "premium";
 type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonBaseProps = {
@@ -25,7 +25,9 @@ export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-white shadow-card hover:bg-electric hover:text-background",
+    "bg-primary text-white shadow-card hover:bg-[#1f7aff] hover:shadow-glow",
+  premium:
+    "bg-gold text-background shadow-card hover:bg-[#ffd633] hover:shadow-glow",
   secondary:
     "bg-card-secondary text-foreground border border-border hover:border-primary hover:text-electric",
   outline:

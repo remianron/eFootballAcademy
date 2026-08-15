@@ -15,8 +15,13 @@ export async function Hero() {
     : [];
 
   return (
-    <Section as="div" className="overflow-hidden pt-14 pb-16 sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24">
-      <Container>
+    <Section
+      as="div"
+      className="relative overflow-hidden pt-14 pb-16 sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24"
+    >
+      <div aria-hidden="true" className="absolute inset-0 brand-grid" />
+      <div aria-hidden="true" className="absolute inset-0 brand-glow" />
+      <Container className="relative">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="max-w-xl">
             <p className="text-eyebrow font-display text-electric uppercase">

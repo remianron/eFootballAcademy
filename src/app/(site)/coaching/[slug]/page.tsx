@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Button, Container, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
 import { ContentBlockList } from "@/components/content/content-blocks";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { IconExternalLink } from "@/components/icons";
 import { initials } from "@/lib/labels";
 import { getPublishedCoachBySlug } from "@/lib/public";
@@ -108,6 +109,7 @@ export default async function CoachPage({
                   </Button>
                 </div>
               )}
+              <AdSlot placement="sidebar" />
             </div>
 
             <div className="min-w-0 space-y-10">
@@ -128,6 +130,8 @@ export default async function CoachPage({
               </div>
 
               <ContentBlockList blocks={coach.blocks} />
+
+              <AdSlot placement="before-related" />
             </div>
           </div>
         </Container>

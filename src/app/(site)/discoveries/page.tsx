@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container, PageHeader, Section } from "@/components";
 import { DiscoveryCard } from "@/components/content/discovery-card";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { getPublishedDiscoveries } from "@/lib/public";
 
 export const metadata: Metadata = {
@@ -26,6 +27,8 @@ export default async function DiscoveriesPage() {
         </Container>
       </Section>
 
+      <AdSlot placement="top-banner" className="mt-8" />
+
       <Section>
         <Container>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -35,6 +38,8 @@ export default async function DiscoveriesPage() {
           </div>
         </Container>
       </Section>
+
+      <AdSlot placement="before-footer" />
     </>
   );
 }

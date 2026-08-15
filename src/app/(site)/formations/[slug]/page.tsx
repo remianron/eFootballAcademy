@@ -4,6 +4,7 @@ import { Badge, Card, Container, Section } from "@/components";
 import { ContentMediaList } from "@/components/content/content-media";
 import { ContentBlockList } from "@/components/content/content-blocks";
 import { MediaPlaceholder } from "@/components/content/media-placeholder";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { IconTarget } from "@/components/icons";
 import { getPublishedFormationBySlug } from "@/lib/public";
 
@@ -59,6 +60,8 @@ export default async function FormationPage({
           )}
 
           <ContentBlockList blocks={formation.blocks} className="mt-12" />
+
+          <AdSlot placement="content-inline" className="mt-12" />
 
           <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-12">
             <div>
@@ -139,6 +142,8 @@ export default async function FormationPage({
               </ul>
             </div>
           </div>
+
+          <AdSlot placement="before-related" className="mt-12" />
 
           <div className="mt-12 rounded-card border border-primary/40 bg-primary/10 p-6 shadow-elevated sm:p-8">
             <div className="flex items-start gap-4">

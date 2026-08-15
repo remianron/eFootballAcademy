@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container, PageHeader, Section } from "@/components";
 import { TutorialCard } from "@/components/content/tutorial-card";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { TUTORIAL_CATEGORY_LABELS, TUTORIAL_CATEGORY_ORDER } from "@/lib/labels";
 import { getPublishedTutorials } from "@/lib/public";
 import type { TutorialCategory } from "@/content/types";
@@ -35,6 +36,8 @@ export default async function TutorialsPage() {
         </Container>
       </Section>
 
+      <AdSlot placement="top-banner" className="mt-8" />
+
       {grouped.map((group) => (
         <Section key={group.category} className={group.category !== grouped[0].category ? "pt-0" : ""}>
           <Container>
@@ -58,6 +61,8 @@ export default async function TutorialsPage() {
           </Container>
         </Section>
       ))}
+
+      <AdSlot placement="before-footer" />
     </>
   );
 }

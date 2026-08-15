@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Badge, Container, PageHeader, Section } from "@/components";
 import { BuildCard } from "@/components/content/build-card";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { getPublishedBuilds } from "@/lib/public";
 
 export const metadata: Metadata = {
@@ -30,6 +31,8 @@ export default async function BuildsPage() {
         </Container>
       </Section>
 
+      <AdSlot placement="top-banner" className="mt-8" />
+
       <Section>
         <Container>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -39,6 +42,8 @@ export default async function BuildsPage() {
           </div>
         </Container>
       </Section>
+
+      <AdSlot placement="before-footer" />
     </>
   );
 }

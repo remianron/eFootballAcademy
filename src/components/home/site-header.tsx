@@ -19,7 +19,7 @@ export function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="relative sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="relative sticky top-0 z-50 border-b border-border bg-navy/85 backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Link href="/" aria-label="eFootball Academy home" className="shrink-0">
           <BrandLogo />
@@ -34,10 +34,11 @@ export function SiteHeader() {
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "text-sm font-medium transition-colors",
+                  "relative text-sm font-medium transition-colors",
+                  "after:absolute after:-bottom-2 after:inset-x-1 after:h-0.5 after:origin-center after:rounded-full after:bg-electric after:transition-transform after:duration-150",
                   active
-                    ? "text-electric"
-                    : "text-secondary hover:text-electric"
+                    ? "text-electric after:scale-x-100"
+                    : "text-secondary after:scale-x-0 hover:text-electric hover:after:scale-x-50"
                 )}
               >
                 {link.label}

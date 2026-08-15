@@ -24,7 +24,7 @@ export function AdminSidebar() {
 
   return (
     <>
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background px-4 py-3 lg:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-navy px-4 py-3 lg:hidden">
         <BrandLogo mode="full" />
         <IconButton
           label="Open admin navigation"

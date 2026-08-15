@@ -69,7 +69,7 @@ export function MobileNav({ links }: MobileNavProps) {
       {open && (
         <div
           id="mobile-navigation"
-          className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-4rem)] overflow-y-auto bg-background"
+          className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-4rem)] overflow-y-auto bg-navy"
         >
           <Container className="py-4">
             <nav aria-label="Mobile">

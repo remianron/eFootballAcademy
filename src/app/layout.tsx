@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  icons: {
+    icon: "/brand/logo-mark.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

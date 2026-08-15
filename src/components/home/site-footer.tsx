@@ -22,15 +22,22 @@ const socialLinks = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border">
+    <footer className="border-t border-border bg-navy">
+      <div
+        aria-hidden="true"
+        className="h-px bg-gradient-to-r from-transparent via-electric/60 to-transparent"
+      />
       <Container className="py-14">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
             <BrandLogo />
-            <p className="mt-4 text-sm font-medium text-secondary">
-              Learn. Train. Master.
-            </p>
-            <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted">
+            <div className="mt-4 flex items-center gap-3">
+              <span aria-hidden="true" className="accent-line-gold" />
+              <p className="font-display text-xs font-semibold tracking-[0.25em] text-secondary uppercase">
+                Learn · Train · Master
+              </p>
+            </div>
+            <p className="mt-3 max-w-xs text-xs leading-relaxed text-muted">
               eFootball Academy is a curated coaching and intelligence platform
               — published builds, tutorials, formations and research.
             </p>

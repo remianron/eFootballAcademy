@@ -5,6 +5,7 @@ export function FinalCta() {
     <Section>
       <Container>
         <div className="relative overflow-hidden rounded-card border border-primary/40 bg-primary/10 px-6 py-14 text-center shadow-elevated sm:px-12 sm:py-20">
+          <div aria-hidden="true" className="absolute inset-0 brand-grid" />
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0"

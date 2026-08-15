@@ -6,6 +6,7 @@ import { BuildSwitcher } from "@/components/content/build-switcher";
 import { ContentMediaList } from "@/components/content/content-media";
 import { ContentBlockList } from "@/components/content/content-blocks";
 import { CommunityFeedbackList } from "@/components/content/community-feedback";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { cn } from "@/lib/cn";
 import {
   getPublishedBuildBySlug,
@@ -73,6 +74,8 @@ export default async function BuildPage({
 
       <Section>
         <Container>
+          <AdSlot placement="top-banner" className="mb-12" />
+
           {showSwitcher && (
             <div className="rounded-card border border-border bg-card p-5 sm:p-6">
               <BuildSwitcher
@@ -105,6 +108,8 @@ export default async function BuildPage({
               </div>
               <ContentBlockList blocks={build.blocks} className="mt-10" />
             </section>
+
+            <AdSlot placement="content-inline" />
 
             <section>
               <Divider className="mb-8" />
@@ -219,6 +224,8 @@ export default async function BuildPage({
                 </div>
               </div>
             </section>
+
+            <AdSlot placement="before-related" />
 
             <section>
               <Divider className="mb-8" />

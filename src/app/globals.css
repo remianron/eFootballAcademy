@@ -7,11 +7,19 @@
 
 @theme {
   /* ---------- Colors ---------- */
+  /* Midnight Navy — page foundation */
   --color-background: #020a1a;
+  /* Soft Navy — elevated surfaces (header, footer, hero) */
+  --color-navy: #0a1628;
+  /* Academy Blue — primary actions, links, focus */
   --color-primary: #0066ff;
-  --color-electric: #00d4ff;
-  --color-gold: #ffc107;
+  /* Electric Blue — active states, technical accents */
+  --color-electric: #00d9ff;
+  /* Elite Gold — premium/highlight states only */
+  --color-gold: #ffc900;
   --color-white: #ffffff;
+  /* Ice Blue — light technical text on navy surfaces */
+  --color-ice: #c8ecff;
 
   --color-foreground: #f8fafc;
   --color-secondary: #d9e1ec;
@@ -76,7 +84,9 @@
   --shadow-card-hover: 0 1px 2px rgb(2 10 26 / 0.4),
     0 16px 40px -12px rgb(2 10 26 / 0.7);
   --shadow-elevated: 0 12px 48px -12px rgb(0 102 255 / 0.25);
-  --shadow-focus: 0 0 0 3px rgb(0 212 255 / 0.35);
+  --shadow-focus: 0 0 0 3px rgb(0 217 255 / 0.35);
+  /* Restrained glow for important interactive/premium states only */
+  --shadow-glow: 0 0 32px -8px rgb(0 217 255 / 0.22);
 
   /* ---------- Transitions ---------- */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -132,5 +142,45 @@
 
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* ============================================================
+     Brand technical elements
+     Subtle, reusable brand motifs — keep restraint in mind.
+     ============================================================ */
+
+  /* Faint technical grid motif for hero and large surfaces. */
+  .brand-grid {
+    background-image:
+      linear-gradient(rgb(148 163 184 / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(148 163 184 / 0.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse at center, black 35%, transparent 75%);
+    mask-image: radial-gradient(ellipse at center, black 35%, transparent 75%);
+  }
+
+  /* Restrained blue atmosphere for hero/large surfaces. */
+  .brand-glow {
+    background: radial-gradient(
+      ellipse at 70% 20%,
+      rgb(0 102 255 / 0.16),
+      transparent 55%
+    );
+  }
+
+  /* Small blue accent line used beside section eyebrows and titles. */
+  .accent-line {
+    height: 0.1875rem;
+    width: 2.5rem;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--color-electric), var(--color-primary));
+  }
+
+  /* Small gold accent line for premium/highlight contexts. */
+  .accent-line-gold {
+    height: 0.1875rem;
+    width: 2.5rem;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--color-gold), rgb(255 201 0 / 0.25));
   }
 }

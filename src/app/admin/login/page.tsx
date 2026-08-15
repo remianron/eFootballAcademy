@@ -19,8 +19,10 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-navy px-4 py-12">
+      <div aria-hidden="true" className="absolute inset-0 brand-grid" />
+      <div aria-hidden="true" className="absolute inset-0 brand-glow" />
+      <div className="relative w-full max-w-sm">
         <div className="mb-8 flex justify-center">
           <BrandLogo mode="full" />
         </div>
