@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import {
   IconBook,
+  IconCompass,
   IconCrosshair,
   IconFlask,
   IconFormation,
@@ -27,6 +28,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: "/admin/coaches", label: "Coaches", icon: IconUsers },
   { href: "/admin/bookings", label: "Bookings", icon: IconPulse },
   { href: "/admin/featured", label: "Featured Content", icon: IconStar },
+  { href: "/admin/social", label: "Social Links", icon: IconCompass },
 ];
 
 export const ADMIN_CONTENT_TYPE_ICONS: Record<ContentType, ComponentType<IconProps>> = {

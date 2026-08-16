@@ -8,6 +8,10 @@ export const CONTENT_BLOCK_TYPES = [
   "media",
   "attributes",
   "custom",
+  "mixed",
+  "quote",
+  "divider",
+  "spacer",
 ] as const;
 
 export type ContentBlockType = (typeof CONTENT_BLOCK_TYPES)[number];
@@ -18,6 +22,10 @@ export const CONTENT_BLOCK_LABELS: Record<ContentBlockType, string> = {
   media: "Media (single or side-by-side)",
   attributes: "Custom attributes",
   custom: "Custom section",
+  mixed: "Media + text side-by-side",
+  quote: "Quote / callout",
+  divider: "Divider",
+  spacer: "Spacer",
 };
 
 /**
@@ -29,7 +37,11 @@ export type ContentBlockItem =
   | ({ uid: string; type: "text" } & TextBlockData)
   | ({ uid: string; type: "media" } & MediaBlockData)
   | ({ uid: string; type: "attributes" } & AttributesBlockData)
-  | ({ uid: string; type: "custom" } & CustomBlockData);
+  | ({ uid: string; type: "custom" } & CustomBlockData)
+  | ({ uid: string; type: "mixed" } & MixedBlockData)
+  | ({ uid: string; type: "quote" } & QuoteBlockData)
+  | ({ uid: string; type: "divider" })
+  | ({ uid: string; type: "spacer" } & SpacerBlockData);
 
 export interface HeadingBlockData {
   text: string;
@@ -53,6 +65,21 @@ export interface CustomBlockData {
   content: string;
 }
 
+export interface MixedBlockData {
+  media: ContentMediaItem[];
+  content: string;
+  side: "media" | "text";
+}
+
+export interface QuoteBlockData {
+  text: string;
+  attribution: string;
+}
+
+export interface SpacerBlockData {
+  size: SpacerSize;
+}
+
 /**
  * Normalized block payload — what is actually persisted in `ContentBlock.data`.
  */
@@ -61,6 +88,18 @@ export type NormalizedContentBlock =
   | { type: "text"; content: string }
   | { type: "media"; media: NormalizedContentMedia[] }
   | { type: "attributes"; items: { name: string; value: string }[] }
-  | { type: "custom"; label: string; content: string };
+  | { type: "custom"; label: string; content: string }
+  | {
+      type: "mixed";
+      media: NormalizedContentMedia[];
+      content: string;
+      side: "media" | "text";
+    }
+  | { type: "quote"; text: string; attribution?: string }
+  | { type: "divider" }
+  | { type: "spacer"; size: SpacerSize };
 
 export const BLOCK_HEADING_LEVELS = ["2", "3"] as const;
+export const MIXED_SIDES = ["media", "text"] as const;
+export const SPACER_SIZES = ["sm", "md", "lg"] as const;
+export type SpacerSize = (typeof SPACER_SIZES)[number];

@@ -26,7 +26,16 @@ export interface ContentMedia {
   alt?: string;
 }
 
-export type ContentBlockType = "heading" | "text" | "media" | "attributes" | "custom";
+export type ContentBlockType =
+  | "heading"
+  | "text"
+  | "media"
+  | "attributes"
+  | "custom"
+  | "mixed"
+  | "quote"
+  | "divider"
+  | "spacer";
 
 /**
  * Ordered editorial content block (flexible CMS). Rendered in stored
@@ -37,7 +46,16 @@ export type ContentBlock =
   | { type: "text"; content: string }
   | { type: "media"; media: ContentMedia[] }
   | { type: "attributes"; items: { name: string; value: string }[] }
-  | { type: "custom"; label: string; content: string };
+  | { type: "custom"; label: string; content: string }
+  | {
+      type: "mixed";
+      media: ContentMedia[];
+      content: string;
+      side: "media" | "text";
+    }
+  | { type: "quote"; text: string; attribution?: string }
+  | { type: "divider" }
+  | { type: "spacer"; size: "sm" | "md" | "lg" };
 
 export type FeedbackPlatform = "YouTube" | "Facebook" | "Instagram" | "TikTok";
 
@@ -139,6 +157,17 @@ export interface Discovery extends BaseContent {
 
 export interface SocialLink {
   platform: string;
+  url: string;
+}
+
+/**
+ * Global site social link (footer + floating widget). Derived from the
+ * SiteSocialLink table — published rows only; never contains internal
+ * fields like published/sortOrder/timestamps.
+ */
+export interface SiteSocialLink {
+  platform: string;
+  label: string;
   url: string;
 }
 

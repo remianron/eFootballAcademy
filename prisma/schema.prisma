@@ -525,3 +525,25 @@ model ContentBlock {
 
   @@index([ownerType, ownerId, order])
 }
+
+// ── Global site social links (footer + floating widget, admin-controlled) ──
+// Canonical source for the site-wide social links shown on every public
+// page. Coach-specific links live on CoachSocialLink and are deliberately
+// separate. `platform` is a flexible string (like ContentBlock.type and
+// CoachSocialLink.platform) so new platforms never require a migration;
+// unknown platforms fall back to a generic link presentation. Only
+// `published` rows are ever exposed through the public DTO/API.
+
+model SiteSocialLink {
+  id        String   @id @default(cuid())
+  platform  String   @db.VarChar(32) // "youtube", "facebook", "discord", …
+  label     String   @db.VarChar(64)
+  url       String   @db.VarChar(2048)
+  published Boolean  @default(false) // unpublished links never render publicly
+  sortOrder Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, sortOrder])
+}

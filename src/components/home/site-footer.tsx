@@ -1,4 +1,5 @@
 import { BrandLogo, Container, Divider } from "@/components";
+import type { SiteSocialLink } from "@/content/types";
 
 const platformLinks = [
   { label: "Builds", href: "/builds" },
@@ -14,13 +15,7 @@ const aboutLinks = [
   { label: "Research", href: "/discoveries" },
 ] as const;
 
-const socialLinks = [
-  { label: "YouTube", href: "#" },
-  { label: "Facebook", href: "#" },
-  { label: "Instagram", href: "#" },
-] as const;
-
-export function SiteFooter() {
+export function SiteFooter({ socialLinks }: { socialLinks: SiteSocialLink[] }) {
   return (
     <footer className="border-t border-border bg-navy">
       <div
@@ -44,7 +39,7 @@ export function SiteFooter() {
           </div>
           <FooterColumn title="Platform" links={platformLinks} />
           <FooterColumn title="About" links={aboutLinks} />
-          <FooterColumn title="Social" links={socialLinks} />
+          <FooterColumn title="Social" links={socialLinks.map((link) => ({ label: link.label, href: link.url }))} />
         </div>
 
         <Divider className="mt-12" />

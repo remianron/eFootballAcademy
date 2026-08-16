@@ -5,6 +5,7 @@ import type {
   DiscoveryDto,
   FormationDto,
   MediaDto,
+  SiteSocialLinkDto,
   TutorialDto,
 } from "@/lib/db/types";
 import type {
@@ -17,6 +18,7 @@ import type {
   Media,
   PlayerBuild,
   PlayerRole,
+  SiteSocialLink,
   Tutorial,
 } from "@/content/types";
 import type { BuildCardRowDto } from "@/lib/db/repositories/builds.repo";
@@ -60,8 +62,30 @@ const RESEARCH_STATUS_MAP = {
   FIELD_VERIFIED: "field-verified",
 } as const;
 
+const SITE_SOCIAL_URL_PATTERN = /^https?:\/\/\S+$/;
+
 function iso(date: Date): string {
   return date.toISOString();
+}
+
+/**
+ * Public boundary for global social links. Filters unpublished rows again
+ * (belt and braces on top of the repo's `published = true` query) and
+ * refuses placeholder URLs. Exposes only what the public UI needs:
+ * platform, label, url.
+ */
+export function toPublicSiteSocialLinks(
+  rows: SiteSocialLinkDto[]
+): SiteSocialLink[] {
+  return rows
+    .filter(
+      (link) => link.published && SITE_SOCIAL_URL_PATTERN.test(link.url)
+    )
+    .map((link) => ({
+      platform: link.platform,
+      label: link.label,
+      url: link.url,
+    }));
 }
 
 function youtubeUrl(videoId: string): string {
@@ -135,6 +159,23 @@ export function toPublicContentBlocks(blocks: ContentBlockDto[]): ContentBlock[]
         return [{ type: "attributes", items: block.items }];
       case "custom":
         return [{ type: "custom", label: block.label, content: block.content }];
+      case "mixed": {
+        const media = block.media
+          .map((item) => toPublicContentMediaItem(item))
+          .filter((item): item is ContentMedia => item !== null);
+        if (media.length === 0) return [];
+        return [{ type: "mixed", media, content: block.content, side: block.side }];
+      }
+      case "quote":
+        return [
+          block.attribution
+            ? { type: "quote", text: block.text, attribution: block.attribution }
+            : { type: "quote", text: block.text },
+        ];
+      case "divider":
+        return [{ type: "divider" }];
+      case "spacer":
+        return [{ type: "spacer", size: block.size }];
     }
   });
 }

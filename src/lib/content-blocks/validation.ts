@@ -1,9 +1,12 @@
 import { extractYouTubeVideoId } from "@/lib/build-editor/youtube";
+import type { ContentMediaItem } from "@/components/admin/form/media-editor";
+import type { NormalizedContentMedia } from "@/lib/content-editor/media-input";
 import type {
   ContentBlockItem,
   ContentBlockType,
   NormalizedContentBlock,
 } from "@/lib/content-blocks/types";
+import { MIXED_SIDES, SPACER_SIZES } from "@/lib/content-blocks/types";
 import { validateContentMedia } from "@/lib/content-editor/media-input";
 import type { EditorErrors } from "@/lib/content-editor/validation";
 
@@ -15,6 +18,9 @@ const MAX_ATTRIBUTES = 12;
 const MAX_ATTRIBUTE_NAME = 100;
 const MAX_ATTRIBUTE_VALUE = 500;
 const MAX_MEDIA_PER_BLOCK = 4;
+const MAX_MIXED_MEDIA = 2;
+const MAX_QUOTE_TEXT = 1000;
+const MAX_QUOTE_ATTRIBUTION = 80;
 
 /**
  * Validates the full block list. Errors are keyed `blocks.${i}.<field>`
@@ -48,6 +54,19 @@ export function validateContentBlocks(
         break;
       case "custom":
         validateCustom(block.label, block.content, field, errors);
+        break;
+      case "mixed":
+        validateMixed(block.media, block.content, block.side, field, errors);
+        break;
+      case "quote":
+        validateQuote(block.text, block.attribution, field, errors);
+        break;
+      case "divider":
+        break;
+      case "spacer":
+        if (!SPACER_SIZES.includes(block.size)) {
+          errors[`${field}.size`] = "Choose a spacer size.";
+        }
         break;
     }
   });
@@ -114,6 +133,43 @@ function validateCustom(
   }
 }
 
+function validateMixed(
+  media: Parameters<typeof validateContentMedia>[0],
+  content: string,
+  side: string,
+  field: string,
+  errors: EditorErrors
+) {
+  validateContentMedia(media, errors, `${field}.media`, MAX_MIXED_MEDIA);
+  const trimmed = content.trim();
+  if (!trimmed) {
+    errors[`${field}.content`] = "Write some text for this block.";
+  } else if (trimmed.length > MAX_TEXT_CONTENT) {
+    errors[`${field}.content`] = `Keep the text under ${MAX_TEXT_CONTENT} characters.`;
+  }
+  if (!MIXED_SIDES.includes(side as (typeof MIXED_SIDES)[number])) {
+    errors[`${field}.side`] = "Choose which side comes first.";
+  }
+}
+
+function validateQuote(
+  text: string,
+  attribution: string,
+  field: string,
+  errors: EditorErrors
+) {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    errors[`${field}.text`] = "Write the quote or callout text.";
+  } else if (trimmed.length > MAX_QUOTE_TEXT) {
+    errors[`${field}.text`] = `Keep the quote under ${MAX_QUOTE_TEXT} characters.`;
+  }
+  if (attribution.trim().length > MAX_QUOTE_ATTRIBUTION) {
+    errors[`${field}.attribution`] =
+      `Keep the attribution under ${MAX_QUOTE_ATTRIBUTION} characters.`;
+  }
+}
+
 export type { ContentBlockType };
 
 export function emptyBlockOfType(type: ContentBlockType): ContentBlockItem {
@@ -129,6 +185,14 @@ export function emptyBlockOfType(type: ContentBlockType): ContentBlockItem {
       return { uid, type, items: [] };
     case "custom":
       return { uid, type, label: "", content: "" };
+    case "mixed":
+      return { uid, type, media: [], content: "", side: "media" };
+    case "quote":
+      return { uid, type, text: "", attribution: "" };
+    case "divider":
+      return { uid, type: "divider" };
+    case "spacer":
+      return { uid, type, size: "md" };
   }
 }
 
@@ -157,39 +221,7 @@ export function normalizeContentBlocks(
         break;
       }
       case "media": {
-        const media = block.media
-          .filter(
-            (item) =>
-              !(
-                item.url.trim() === "" &&
-                item.thumbnailUrl.trim() === "" &&
-                item.alt.trim() === "" &&
-                item.caption.trim() === "" &&
-                (item.kind !== "YOUTUBE_VIDEO" || item.youtubeInput.trim() === "")
-              )
-          )
-          .map((item) => {
-            if (item.kind === "YOUTUBE_VIDEO") {
-              return {
-                kind: item.kind,
-                youtubeVideoId: extractYouTubeVideoId(item.youtubeInput),
-                url: null,
-                thumbnailUrl: item.thumbnailUrl.trim() || null,
-                alt: trim(item.alt),
-                caption: trim(item.caption),
-                aspectRatio: item.aspectRatio,
-              };
-            }
-            return {
-              kind: item.kind,
-              youtubeVideoId: null,
-              url: item.url.trim() || null,
-              thumbnailUrl: item.thumbnailUrl.trim() || null,
-              alt: trim(item.alt),
-              caption: trim(item.caption),
-              aspectRatio: item.aspectRatio,
-            };
-          });
+        const media = normalizeMediaItems(block.media);
         if (media.length === 0) continue;
         result.push({ type: "media", media });
         break;
@@ -209,10 +241,80 @@ export function normalizeContentBlocks(
         result.push({ type: "custom", label, content });
         break;
       }
+      case "mixed": {
+        const content = trim(block.content);
+        const media = normalizeMediaItems(block.media);
+        if (!content || media.length === 0) continue;
+        result.push({
+          type: "mixed",
+          media,
+          content,
+          side: block.side === "text" ? "text" : "media",
+        });
+        break;
+      }
+      case "quote": {
+        const text = trim(block.text);
+        if (!text) continue;
+        const attribution = trim(block.attribution);
+        result.push({
+          type: "quote",
+          text,
+          ...(attribution ? { attribution } : {}),
+        });
+        break;
+      }
+      case "divider":
+        result.push({ type: "divider" });
+        break;
+      case "spacer": {
+        const size = SPACER_SIZES.includes(block.size) ? block.size : "md";
+        result.push({ type: "spacer", size });
+        break;
+      }
     }
   }
 
   return result;
+}
+
+function normalizeMediaItems(
+  items: ContentMediaItem[]
+): NormalizedContentMedia[] {
+  const trim = (value: string) => value.trim();
+  return items
+    .filter(
+      (item) =>
+        !(
+          item.url.trim() === "" &&
+          item.thumbnailUrl.trim() === "" &&
+          item.alt.trim() === "" &&
+          item.caption.trim() === "" &&
+          (item.kind !== "YOUTUBE_VIDEO" || item.youtubeInput.trim() === "")
+        )
+    )
+    .map((item) => {
+      if (item.kind === "YOUTUBE_VIDEO") {
+        return {
+          kind: item.kind,
+          youtubeVideoId: extractYouTubeVideoId(item.youtubeInput),
+          url: null,
+          thumbnailUrl: item.thumbnailUrl.trim() || null,
+          alt: trim(item.alt),
+          caption: trim(item.caption),
+          aspectRatio: item.aspectRatio,
+        };
+      }
+      return {
+        kind: item.kind,
+        youtubeVideoId: null,
+        url: item.url.trim() || null,
+        thumbnailUrl: item.thumbnailUrl.trim() || null,
+        alt: trim(item.alt),
+        caption: trim(item.caption),
+        aspectRatio: item.aspectRatio,
+      };
+    });
 }
 
 function localUid(): string {

@@ -87,13 +87,21 @@ export interface MediaDto {
  *   media      -> { type, media: NormalizedContentMedia[] }
  *   attributes -> { type, items: { name, value }[] }
  *   custom     -> { type, label?, content }
+ *   mixed      -> { type, media, content, side: "media" | "text" }
+ *   quote      -> { type, text, attribution? }
+ *   divider    -> { type }
+ *   spacer     -> { type, size: "sm" | "md" | "lg" }
  */
 export type ContentBlockDto =
   | ({ id: string; order: number } & NormalizedHeadingBlock)
   | ({ id: string; order: number } & NormalizedTextBlock)
   | ({ id: string; order: number } & NormalizedMediaBlock)
   | ({ id: string; order: number } & NormalizedAttributesBlock)
-  | ({ id: string; order: number } & NormalizedCustomBlock);
+  | ({ id: string; order: number } & NormalizedCustomBlock)
+  | ({ id: string; order: number } & NormalizedMixedBlock)
+  | ({ id: string; order: number } & NormalizedQuoteBlock)
+  | ({ id: string; order: number } & NormalizedDividerBlock)
+  | ({ id: string; order: number } & NormalizedSpacerBlock);
 
 interface NormalizedHeadingBlock {
   type: "heading";
@@ -108,15 +116,39 @@ interface NormalizedTextBlock {
 
 interface NormalizedMediaBlock {
   type: "media";
-  media: {
-    kind: MediaKind;
-    youtubeVideoId: string | null;
-    url: string | null;
-    thumbnailUrl: string | null;
-    alt: string;
-    caption: string;
-    aspectRatio: string;
-  }[];
+  media: NormalizedMediaEntry[];
+}
+
+interface NormalizedMixedBlock {
+  type: "mixed";
+  media: NormalizedMediaEntry[];
+  content: string;
+  side: "media" | "text";
+}
+
+interface NormalizedQuoteBlock {
+  type: "quote";
+  text: string;
+  attribution?: string;
+}
+
+interface NormalizedDividerBlock {
+  type: "divider";
+}
+
+interface NormalizedSpacerBlock {
+  type: "spacer";
+  size: "sm" | "md" | "lg";
+}
+
+interface NormalizedMediaEntry {
+  kind: MediaKind;
+  youtubeVideoId: string | null;
+  url: string | null;
+  thumbnailUrl: string | null;
+  alt: string;
+  caption: string;
+  aspectRatio: string;
 }
 
 interface NormalizedAttributesBlock {
@@ -239,6 +271,22 @@ export interface SocialLinkDto {
   platform: string;
   url: string;
   order: number;
+}
+
+/**
+ * Global site social link (footer + floating widget). Only `published`
+ * rows are ever exposed through the public DTO/API — the public mapper
+ * additionally strips every field except platform/label/url.
+ */
+export interface SiteSocialLinkDto {
+  id: string;
+  platform: string;
+  label: string;
+  url: string;
+  published: boolean;
+  sortOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CoachDto {

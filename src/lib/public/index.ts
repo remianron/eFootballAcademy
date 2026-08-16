@@ -25,6 +25,7 @@ import {
   listCoaches,
 } from "@/lib/db/repositories/coaches.repo";
 import { listFeaturedEntries } from "@/lib/db/repositories/featured.repo";
+import { listPublishedSiteSocialLinks } from "@/lib/db/repositories/social-links.repo";
 import {
   toPublicBuild,
   toPublicBuildCard,
@@ -33,6 +34,7 @@ import {
   toPublicDiscoveryCard,
   toPublicFormation,
   toPublicFormationCard,
+  toPublicSiteSocialLinks,
   toPublicTutorial,
   toPublicTutorialCard,
 } from "@/lib/public/mappers";
@@ -44,6 +46,7 @@ import type {
   FeaturedPlacement,
   FormationGuide,
   PlayerBuild,
+  SiteSocialLink,
   Tutorial,
 } from "@/content/types";
 
@@ -136,6 +139,10 @@ export function getPublishedDiscoveryBySlug(
 
 export function getPublishedCoaches(): Promise<Coach[]> {
   return listCoaches(true).then((coaches) => coaches.map((coach) => toPublicCoach(coach)));
+}
+
+export function getPublishedSiteSocialLinks(): Promise<SiteSocialLink[]> {
+  return listPublishedSiteSocialLinks().then(toPublicSiteSocialLinks);
 }
 
 export function getPublishedCoachBySlug(slug: string): Promise<Coach | null> {

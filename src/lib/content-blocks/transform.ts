@@ -1,5 +1,6 @@
 import type { ContentMediaItem } from "@/components/admin/form/media-editor";
 import type { PairItem } from "@/components/admin/form/pair-list-editor";
+import type { NormalizedContentMedia } from "@/lib/content-editor/media-input";
 import type {
   ContentBlockItem,
   NormalizedContentBlock,
@@ -29,18 +30,7 @@ export function contentBlockItemFromPayload(
       return {
         uid,
         type: "media",
-        media: payload.media.map(
-          (item): ContentMediaItem => ({
-            uid: localUid(),
-            kind: item.kind,
-            youtubeInput: item.youtubeVideoId ?? "",
-            url: item.url ?? "",
-            thumbnailUrl: item.thumbnailUrl ?? "",
-            alt: item.alt,
-            caption: item.caption,
-            aspectRatio: item.aspectRatio,
-          })
-        ),
+        media: mediaItemsFromPayload(payload.media),
       };
     case "attributes":
       return {
@@ -52,7 +42,41 @@ export function contentBlockItemFromPayload(
       };
     case "custom":
       return { uid, type: "custom", label: payload.label, content: payload.content };
+    case "mixed":
+      return {
+        uid,
+        type: "mixed",
+        media: mediaItemsFromPayload(payload.media),
+        content: payload.content,
+        side: payload.side,
+      };
+    case "quote":
+      return {
+        uid,
+        type: "quote",
+        text: payload.text,
+        attribution: payload.attribution ?? "",
+      };
+    case "divider":
+      return { uid, type: "divider" };
+    case "spacer":
+      return { uid, type: "spacer", size: payload.size ?? "md" };
   }
+}
+
+function mediaItemsFromPayload(media: NormalizedContentMedia[]): ContentMediaItem[] {
+  return media.map(
+    (item): ContentMediaItem => ({
+      uid: localUid(),
+      kind: item.kind,
+      youtubeInput: item.youtubeVideoId ?? "",
+      url: item.url ?? "",
+      thumbnailUrl: item.thumbnailUrl ?? "",
+      alt: item.alt,
+      caption: item.caption,
+      aspectRatio: item.aspectRatio,
+    })
+  );
 }
 
 function localUid(): string {

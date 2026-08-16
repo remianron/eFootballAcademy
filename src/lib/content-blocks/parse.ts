@@ -12,7 +12,7 @@ const asString = (value: unknown): string | null =>
 
 const asMediaList = (
   value: unknown
-): (NormalizedContentBlock & { type: "media" }) | null => {
+): NormalizedContentMedia[] | null => {
   if (!Array.isArray(value) || value.length === 0) return null;
   const media = value.map((item): NormalizedContentMedia | null => {
     if (!isRecord(item)) return null;
@@ -41,7 +41,7 @@ const asMediaList = (
     };
   });
   if (media.some((item) => item === null)) return null;
-  return { type: "media", media: media as NormalizedContentMedia[] };
+  return media as NormalizedContentMedia[];
 };
 
 const asAttributeItems = (value: unknown): { name: string; value: string }[] | null => {
@@ -82,9 +82,9 @@ export function parseContentBlockData(
       return { type: "text", content: content.trim() };
     }
     case "media": {
-      const parsed = asMediaList(data.media);
-      if (parsed === null) return null;
-      return parsed;
+      const media = asMediaList(data.media);
+      if (media === null) return null;
+      return { type: "media", media };
     }
     case "attributes": {
       const items = asAttributeItems(data.items);
@@ -97,6 +97,36 @@ export function parseContentBlockData(
       if (content === null || (!content.trim() && !label.trim())) return null;
       return { type: "custom", label: label.trim(), content: content.trim() };
     }
+    case "mixed": {
+      const media = asMediaList(data.media);
+      const content = asString(data.content);
+      if (media === null || content === null || !content.trim()) return null;
+      return {
+        type: "mixed",
+        media,
+        content: content.trim(),
+        side: data.side === "text" ? "text" : "media",
+      };
+    }
+    case "quote": {
+      const text = asString(data.text);
+      if (text === null || !text.trim()) return null;
+      const attribution = (asString(data.attribution) ?? "").trim();
+      return {
+        type: "quote",
+        text: text.trim(),
+        ...(attribution ? { attribution } : {}),
+      };
+    }
+    case "divider":
+      return { type: "divider" };
+    case "spacer": {
+      const size = asString(data.size);
+      return {
+        type: "spacer",
+        size: size === "sm" || size === "lg" ? size : "md",
+      };
+    }
   }
 }
 
@@ -105,5 +135,5 @@ export function toContentBlockDto(
 ): ContentBlockDto | null {
   const payload = parseContentBlockData(row.type, row.data);
   if (!payload) return null;
-  return { id: row.id, order: row.order, ...payload };
+  return { ...payload, id: row.id, order: row.order };
 }

@@ -1,16 +1,23 @@
 import { SiteHeader } from "@/components/home/site-header";
 import { SiteFooter } from "@/components/home/site-footer";
+import { FloatingSocialLinks } from "@/components/home/floating-social";
+import { getPublishedSiteSocialLinks } from "@/lib/public";
 
 /**
  * Public site frame. Every public page inherits the shared header and
  * footer here — pages never render them individually. The admin area
  * lives outside this route group and keeps its own layout.
+ *
+ * Published social links are fetched exactly once and shared by the
+ * footer Social column and the bottom-right floating widget.
  */
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const socialLinks = await getPublishedSiteSocialLinks();
+
   return (
     <div className="flex min-h-full flex-col">
       <a
@@ -26,7 +33,8 @@ export default function SiteLayout({
         {children}
       </main>
 
-      <SiteFooter />
+      <SiteFooter socialLinks={socialLinks} />
+      <FloatingSocialLinks links={socialLinks} />
     </div>
   );
 }

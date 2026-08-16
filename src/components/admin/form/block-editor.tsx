@@ -17,8 +17,10 @@ import {
 import {
   CONTENT_BLOCK_LABELS,
   CONTENT_BLOCK_TYPES,
+  SPACER_SIZES,
   type ContentBlockItem,
   type ContentBlockType,
+  type SpacerSize,
 } from "@/lib/content-blocks/types";
 import { emptyBlockOfType } from "@/lib/content-blocks/validation";
 
@@ -129,8 +131,9 @@ export function BlockEditor({ items, onChange, errors }: BlockEditorProps) {
       {items.length === 0 && (
         <p className="rounded-control border border-dashed border-border px-3 py-2.5 text-xs text-muted">
           No content blocks yet. Add headings, paragraphs, media (single or
-          side-by-side), custom attributes or custom sections — they render
-          in exactly this order on the public page.
+          side-by-side), mixed media + text rows, custom attributes, quotes,
+          dividers or spacers — they render in exactly this order on the
+          public page.
         </p>
       )}
 
@@ -287,6 +290,91 @@ export function BlockEditor({ items, onChange, errors }: BlockEditorProps) {
                     error={blockErrors.content}
                   />
                 </div>
+              )}
+
+              {block.type === "mixed" && (
+                <div className="grid gap-4">
+                  <SelectField
+                    label="Side order"
+                    value={block.side}
+                    onChange={(event) =>
+                      update(index, {
+                        side: event.target.value as "media" | "text",
+                      })
+                    }
+                    error={blockErrors.side}
+                    options={[
+                      { value: "media", label: "Media first (media left, text right)" },
+                      { value: "text", label: "Text first (text left, media right)" },
+                    ]}
+                    className="sm:max-w-xs"
+                  />
+                  <MediaEditor
+                    items={block.media}
+                    onChange={(media) => update(index, { media })}
+                    errors={rekeyMediaErrors(errors, index)}
+                    emptyHint="Add one image or YouTube video to sit beside the text."
+                  />
+                  <TextAreaField
+                    label="Text"
+                    required
+                    rows={5}
+                    value={block.content}
+                    onChange={(event) =>
+                      update(index, { content: event.target.value })
+                    }
+                    hint="Blank lines create separate paragraphs."
+                    error={blockErrors.content}
+                  />
+                </div>
+              )}
+
+              {block.type === "quote" && (
+                <div className="grid gap-4">
+                  <TextAreaField
+                    label="Quote or callout text"
+                    required
+                    rows={3}
+                    value={block.text}
+                    onChange={(event) =>
+                      update(index, { text: event.target.value })
+                    }
+                    error={blockErrors.text}
+                  />
+                  <TextField
+                    label="Attribution (optional)"
+                    value={block.attribution}
+                    maxLength={80}
+                    onChange={(event) =>
+                      update(index, { attribution: event.target.value })
+                    }
+                    placeholder="e.g. Community observation"
+                    error={blockErrors.attribution}
+                    className="sm:max-w-md"
+                  />
+                </div>
+              )}
+
+              {block.type === "divider" && (
+                <p className="rounded-control border border-dashed border-border px-3 py-2.5 text-xs text-muted">
+                  Renders a thin gradient divider between sections.
+                </p>
+              )}
+
+              {block.type === "spacer" && (
+                <SelectField
+                  label="Spacer size"
+                  value={block.size}
+                  onChange={(event) =>
+                    update(index, { size: event.target.value as SpacerSize })
+                  }
+                  error={blockErrors.size}
+                  options={SPACER_SIZES.map((size) => ({
+                    value: size,
+                    label: size.toUpperCase(),
+                  }))}
+                  className="sm:max-w-xs"
+                />
               )}
 
               {blockError && (
