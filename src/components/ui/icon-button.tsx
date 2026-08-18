@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import { cn } from "@/lib/cn";
 
 type IconButtonProps = {
@@ -8,6 +8,7 @@ type IconButtonProps = {
   variant?: "subtle" | "outline";
   size?: "sm" | "md";
   className?: string;
+  ref?: Ref<HTMLButtonElement>;
 } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "aria-label">;
 
 const variants = {
@@ -30,11 +31,13 @@ export function IconButton({
   variant = "subtle",
   size = "md",
   className,
+  ref,
   ...rest
 }: IconButtonProps) {
   return (
     <button
       {...rest}
+      ref={ref}
       type="button"
       aria-label={label}
       title={label}

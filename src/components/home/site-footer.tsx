@@ -10,7 +10,6 @@ const platformLinks = [
 ] as const;
 
 const aboutLinks = [
-  { label: "About Academy", href: "#" },
   { label: "Expert Coaches", href: "/coaching" },
   { label: "Research", href: "/discoveries" },
 ] as const;

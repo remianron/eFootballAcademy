@@ -21,13 +21,42 @@ type MobileNavProps = {
 export function MobileNav({ links }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const wasOpenRef = useRef(false);
   const pathname = usePathname();
 
   useEffect(() => {
     if (!open) return;
 
+    menuRef.current?.querySelector<HTMLElement>("a")?.focus();
+
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const menu = menuRef.current;
+      if (!menu) return;
+      const focusables = menu.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey) {
+        if (active === first || !menu.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (active === last || !menu.contains(active)) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     }
 
     function onPointerDown(event: PointerEvent) {
@@ -49,12 +78,21 @@ export function MobileNav({ links }: MobileNavProps) {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (wasOpenRef.current && !open) {
+      toggleRef.current?.focus();
+    }
+    wasOpenRef.current = open;
+  }, [open]);
+
   return (
     <div ref={rootRef} className="lg:hidden">
       <IconButton
+        ref={toggleRef}
         label={open ? "Close menu" : "Open menu"}
         variant="outline"
-        size="sm"
+        size="md"
+        aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="mobile-navigation"
         onClick={() => setOpen((prev) => !prev)}
@@ -69,6 +107,10 @@ export function MobileNav({ links }: MobileNavProps) {
       {open && (
         <div
           id="mobile-navigation"
+          ref={menuRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site navigation"
           className="absolute inset-x-0 top-full z-50 h-[calc(100dvh-4rem)] overflow-y-auto bg-navy"
         >
           <Container className="py-4">
